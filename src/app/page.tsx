@@ -63,7 +63,7 @@ function InfoSections() {
       <div className="mx-auto max-w-[90rem] space-y-14 px-4 py-14 sm:px-6">
         <section aria-labelledby="how-heading">
           <p className="text-xs font-semibold uppercase tracking-wider text-brand-blue">How CARE-ID works</p>
-          <h2 id="how-heading" className="mt-1 text-2xl font-bold tracking-tight">
+          <h2 id="how-heading" className="scroll-mt-24 mt-1 text-2xl font-bold tracking-tight">
             From a school test to community information
           </h2>
           <ol className="mt-6 grid gap-4 md:grid-cols-3">

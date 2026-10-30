@@ -154,7 +154,7 @@ export function CommunityExplorer({
   const virusSegments = COMMUNITY_VIRUSES.map((v) => ({ value: v, label: VIRUS_BY_KEY[v].shortLabel, color: VIRUS_BY_KEY[v].color }));
 
   return (
-    <section aria-label="Community respiratory virus map" className="relative h-[calc(100dvh-4rem-2.5rem)] min-h-[560px] overflow-hidden bg-[#eef1f4]">
+    <section aria-label="Community respiratory virus map" className="relative h-[calc(100dvh-4rem-2px)] min-h-[560px] overflow-hidden bg-[#eef1f4]">
       {/* Map or list fills the section; the panel floats over it. */}
       <div className="absolute inset-0">
         {view === "map" ? (
@@ -192,6 +192,15 @@ export function CommunityExplorer({
         <div className="absolute right-3 top-3 z-10 sm:right-4 sm:top-4">
           <ActivityLegend title={`${VIRUS_BY_KEY[virus].shortLabel} activity`} compact={!desktop} />
         </div>
+      )}
+
+      {view === "map" && (
+        <a
+          href="#how-heading"
+          className="absolute bottom-4 left-1/2 z-10 hidden -translate-x-1/2 items-center gap-1.5 rounded-full bg-surface/95 px-4 py-2 text-sm font-semibold text-brand-navy shadow-raised ring-1 ring-border hover:bg-surface lg:flex"
+        >
+          How CARE-ID works <span aria-hidden>↓</span>
+        </a>
       )}
 
       {/* Floating panel (desktop) / bottom sheet (mobile). */}
