@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
+import { Icon } from "./icons";
 
 type Variant = "primary" | "secondary" | "ghost";
 
@@ -44,8 +45,8 @@ export function Skeleton({ className = "" }: { className?: string }) {
 export function EmptyState({ title, children, action }: { title: string; children?: ReactNode; action?: ReactNode }) {
   return (
     <Card className="flex flex-col items-center px-6 py-14 text-center">
-      <div aria-hidden className="mb-4 grid size-12 place-items-center rounded-full bg-brand-sky text-xl text-brand-blue">
-        ◎
+      <div className="mb-4 grid size-12 place-items-center rounded-full bg-brand-sky text-brand-blue">
+        <Icon name="activity" className="size-6" />
       </div>
       <h2 className="text-lg font-semibold">{title}</h2>
       {children && <div className="mt-1 max-w-md text-text-muted">{children}</div>}

@@ -24,13 +24,13 @@ function Section({ id, title, children }: { id: SectionId; title: string; childr
       <h2 id={`${id}-h`} className="text-xl font-semibold tracking-tight text-text">
         {title}
       </h2>
-      <div className="space-y-3 leading-7 text-text-muted">{children}</div>
+      <div className="space-y-3 leading-7 text-text-muted [&>p]:max-w-[37rem] [&>ul]:max-w-[37rem]">{children}</div>
     </section>
   );
 }
 
 function Callout({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-xl bg-brand-sky px-4 py-3 text-sm leading-6 text-brand-navy ring-1 ring-brand-blue/15">{children}</div>;
+  return <div className="max-w-[34rem] rounded-xl bg-brand-sky px-4 py-3 text-sm leading-6 text-brand-navy ring-1 ring-brand-blue/15">{children}</div>;
 }
 
 export default async function TechnicalNotes() {

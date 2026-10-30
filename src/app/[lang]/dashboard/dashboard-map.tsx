@@ -87,6 +87,7 @@ export function DashboardMap({
             onSelect={(fsa) => go({ area: `fsa:${fsa}`, fsa, region: undefined }, {})}
             padding={PADDING}
             cooperative
+            unsupportedMessage={m.unsupported}
             label={t(m.label, { virus: virusName })}
             renderTooltip={(fsa) => {
               const c = cells[fsa];

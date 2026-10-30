@@ -31,6 +31,17 @@ export const en = {
     privacy: "Privacy",
   },
 
+  notFound: {
+    title: "Page not found",
+    body: "This page doesn't exist or has moved. Check the address, or go back to the community map.",
+    home: "Go to the community map",
+  },
+  error: {
+    title: "Something went wrong",
+    body: "This page couldn't be loaded. Try again in a moment. If it keeps happening, the data service may be unavailable.",
+    retry: "Try again",
+  },
+
   common: {
     activity: {
       low: "Low",
@@ -103,6 +114,7 @@ export const en = {
     columns: { area: "Area", region: "Region", activity: "Activity" },
     errors: {
       mapFailed: "The map couldn't be loaded. You can still search by postal code or use the list.",
+      mapUnsupported: "This browser can't display the map. You can still search by postal code or use the list.",
       notPostal: "That doesn't look like a postal code. Try something like M5G 1X8.",
       outsideGta: "{fsa} is outside the Greater Toronto Area covered by CARE-ID.",
       noGeolocation: "Location isn't available in this browser.",
@@ -262,6 +274,7 @@ export const en = {
       tooltip: "{pct} positive · {tests} tests",
       legendTitle: "Percent positive",
       failed: "The map couldn't be loaded. Reload the page to try again. The Trends and Data table tabs still work.",
+      unsupported: "This browser can't display the map. The Trends and Data table tabs still work.",
     },
     chart: {
       weekOf: "Week of {date}",

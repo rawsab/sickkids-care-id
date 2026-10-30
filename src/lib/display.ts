@@ -1,4 +1,4 @@
-import type { ActivityLevel, Trend } from "./metrics";
+import type { ActivityLevel } from "./metrics";
 
 // Activity levels are ordinal: one hue, light → dark (validated with the
 // dataviz palette checker, --ordinal, against white). Always paired with dots
@@ -13,8 +13,6 @@ export const ACTIVITY: Record<ActivityLevel, { dots: number; color: string }> = 
 export const ACTIVITY_ORDER: ActivityLevel[] = ["high", "moderate", "low", "insufficient"];
 
 // Sequential positivity bins for the dashboard map (single blue hue, light → dark).
-export const TREND_ARROW: Record<Trend, string> = { rising: "↗", falling: "↘", steady: "→" };
-
 // Each bin covers [previous max, max); labels are built per language in the legend.
 export const POSITIVITY_BINS: { max: number; color: string }[] = [
   { max: 2, color: "#cde2fb" },

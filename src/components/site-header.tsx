@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { Icon } from "@/components/ui/icons";
 import { useI18n } from "@/i18n/client";
 import { isLocale, localePath, switchLocalePath, type Locale } from "@/i18n/config";
 
@@ -29,8 +30,9 @@ function LanguageSwitch({ className }: { className: string }) {
         e.currentTarget.search = window.location.search;
         e.currentTarget.hash = window.location.hash;
       }}
-      className={className}
+      className={`inline-flex items-center gap-1.5 ${className}`}
     >
+      <Icon name="globe" className="size-4" />
       {dict.languageSwitch.label}
     </a>
   );

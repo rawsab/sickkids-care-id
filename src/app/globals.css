@@ -22,6 +22,8 @@
   --border-strong: #c9d1dc;
   /* Outline of text inputs and selects; ≥3:1 against white (WCAG 1.4.11). */
   --border-control: #848f9f;
+  /* Behind the map while tiles load; matches the basemap's land colour. */
+  --map-canvas: #eef1f4;
 
   --text: #0f1b2d;
   --text-muted: #556274;
@@ -47,6 +49,7 @@
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-border-control: var(--border-control);
+  --color-map-canvas: var(--map-canvas);
   --color-text: var(--text);
   --color-text-muted: var(--text-muted);
   --color-text-subtle: var(--text-subtle);
@@ -78,6 +81,19 @@ body {
   outline: 3px solid var(--brand-accent);
   outline-offset: 0;
   box-shadow: 0 0 0 5px var(--brand-navy);
+}
+
+/* Fewer one-word last lines in copy; balanced multi-line headings. */
+p,
+li,
+dd {
+  text-wrap: pretty;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
 }
 
 .tabular {

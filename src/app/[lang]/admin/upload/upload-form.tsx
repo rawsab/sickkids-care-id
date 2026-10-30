@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
+import { Icon } from "@/components/ui/icons";
 import { Button, Card } from "@/components/ui/primitives";
 import { useI18n } from "@/i18n/client";
 import { INTL_LOCALE, type Locale } from "@/i18n/config";
@@ -54,10 +55,10 @@ export function UploadForm() {
                 i < step ? "bg-success text-white" : i === step ? "bg-brand-blue text-white" : "bg-surface-muted text-text-subtle"
               }`}
             >
-              {i < step ? "✓" : i + 1}
+              {i < step ? <Icon name="check" className="size-4" /> : i + 1}
             </span>
             <span className={i === step ? "font-semibold text-text" : "text-text-muted"}>{label}</span>
-            {i < u.steps.length - 1 && <span aria-hidden className="h-px w-8 bg-border-strong sm:w-14" />}
+            {i < u.steps.length - 1 && <span aria-hidden className="hidden h-px w-14 bg-border-strong sm:block" />}
           </li>
         ))}
       </ol>
@@ -78,8 +79,8 @@ export function UploadForm() {
         }`}
       >
         <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => choose(e.target.files?.[0])} />
-        <span aria-hidden className="mb-3 grid size-11 place-items-center rounded-full bg-brand-sky text-lg text-brand-blue">
-          ↑
+        <span className="mb-3 grid size-11 place-items-center rounded-full bg-brand-sky text-brand-blue">
+          <Icon name="arrowUp" className="size-5" />
         </span>
         {file ? (
           <>

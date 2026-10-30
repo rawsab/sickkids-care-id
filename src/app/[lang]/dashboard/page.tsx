@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { TrendChart } from "@/components/trend-chart";
+import { Icon } from "@/components/ui/icons";
 import { ButtonLink, Card, EmptyState } from "@/components/ui/primitives";
 import { Sparkline } from "@/components/ui/sparkline";
 import type { Dictionary } from "@/i18n/dictionaries/en";
@@ -213,8 +214,8 @@ function KpiCard({
         </p>
       )}
       {change !== null && (
-        <p className="mt-3 inline-flex items-center gap-1 rounded-full bg-surface-muted px-2 py-0.5 text-xs font-medium text-text">
-          <span aria-hidden>{change > 0.05 ? "▲" : change < -0.05 ? "▼" : "–"}</span>
+        <p className="mt-3 inline-flex flex-wrap items-center gap-x-1 rounded-lg bg-surface-muted px-2 py-1 text-xs font-medium text-text">
+          <Icon name={change > 0.05 ? "arrowUp" : change < -0.05 ? "arrowDown" : "minus"} className="size-3.5" />
           {Math.abs(change) < 0.05
             ? k.noChange
             : plural(locale, Number(Math.abs(change).toFixed(1)), change > 0 ? k.higher : k.lower, {}, { minimumFractionDigits: 1 })}

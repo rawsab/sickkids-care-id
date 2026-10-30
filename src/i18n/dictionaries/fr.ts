@@ -39,6 +39,17 @@ export const fr: Dictionary = {
     privacy: "Confidentialité",
   },
 
+  notFound: {
+    title: "Page introuvable",
+    body: "Cette page n’existe pas ou a été déplacée. Vérifiez l’adresse ou retournez à la carte communautaire.",
+    home: "Aller à la carte communautaire",
+  },
+  error: {
+    title: "Un problème est survenu",
+    body: "Cette page n’a pas pu être chargée. Réessayez dans un instant. Si le problème persiste, le service de données est peut-être indisponible.",
+    retry: "Réessayer",
+  },
+
   common: {
     activity: {
       low: "Faible",
@@ -111,6 +122,7 @@ export const fr: Dictionary = {
     columns: { area: "Secteur", region: "Région", activity: "Activité" },
     errors: {
       mapFailed: "La carte n’a pas pu être chargée. Vous pouvez quand même chercher par code postal ou utiliser la liste.",
+      mapUnsupported: "Ce navigateur ne peut pas afficher la carte. Vous pouvez quand même chercher par code postal ou utiliser la liste.",
       notPostal: "Ce code postal ne semble pas valide. Essayez, par exemple, M5G 1X8.",
       outsideGta: "{fsa} est à l’extérieur de la région du grand Toronto couverte par CARE-ID.",
       noGeolocation: "La localisation n’est pas disponible dans ce navigateur.",
@@ -278,6 +290,7 @@ export const fr: Dictionary = {
       legendTitle: "Taux de positivité",
       failed:
         "La carte n’a pas pu être chargée. Rechargez la page pour réessayer. Les onglets Tendances et Tableau de données fonctionnent toujours.",
+      unsupported: "Ce navigateur ne peut pas afficher la carte. Les onglets Tendances et Tableau de données fonctionnent toujours.",
     },
     chart: {
       weekOf: "Semaine du {date}",

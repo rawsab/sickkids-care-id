@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityLegend } from "@/components/map/legend";
 import { ActivityBadge } from "@/components/ui/activity-badge";
+import { Icon } from "@/components/ui/icons";
 import { Button, inputClass, Skeleton } from "@/components/ui/primitives";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Sparkline } from "@/components/ui/sparkline";
@@ -27,7 +28,7 @@ const PANEL_WIDTH = 384;
 
 function MapSkeleton() {
   return (
-    <div className="grid size-full place-items-center bg-[#eef1f4]">
+    <div className="grid size-full place-items-center bg-map-canvas">
       <Skeleton className="h-6 w-40 bg-white/70" />
     </div>
   );
@@ -183,7 +184,7 @@ export function CommunityExplorer({
   const virusSegments = COMMUNITY_VIRUSES.map((v) => ({ value: v, label: dict.common.viruses[v].short, color: VIRUS_BY_KEY[v].color }));
 
   return (
-    <section aria-label={h.sectionLabel} className="relative h-[calc(100dvh-4rem-2px)] min-h-[560px] overflow-hidden bg-[#eef1f4]">
+    <section aria-label={h.sectionLabel} className="relative h-[calc(100dvh-4rem-2px)] min-h-[560px] overflow-hidden bg-map-canvas">
       {/* Map or list fills the section; the panel floats over it. */}
       <div className="absolute inset-0">
         {view === "map" ? (
@@ -195,6 +196,7 @@ export function CommunityExplorer({
               onSelect={select}
               padding={padding}
               controlsInset={controlsInset}
+              unsupportedMessage={h.errors.mapUnsupported}
               label={t(h.mapLabel, { virus: dict.common.viruses[virus].label })}
               renderTooltip={(fsa) => {
                 const a = activity.byFsa[fsa]?.[virus];
@@ -229,7 +231,7 @@ export function CommunityExplorer({
           href="#how-heading"
           className="absolute bottom-4 left-1/2 z-10 hidden -translate-x-1/2 items-center gap-1.5 rounded-full bg-surface/95 px-4 py-2 text-sm font-semibold text-brand-navy shadow-raised ring-1 ring-border hover:bg-surface xl:flex"
         >
-          {h.howItWorksLink} <span aria-hidden>↓</span>
+          {h.howItWorksLink} <Icon name="arrowDown" className="size-4" />
         </a>
       )}
 
@@ -457,9 +459,10 @@ function AreaList({
                       className={`inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-surface hover:text-text ${active ? "text-text" : ""}`}
                     >
                       {dict.home.columns[key]}
-                      <span aria-hidden className={`text-xs ${active ? "" : "opacity-40"}`}>
-                        {active ? (sort.dir === "ascending" ? "↑" : "↓") : "↕"}
-                      </span>
+                      <Icon
+                        name={active ? (sort.dir === "ascending" ? "arrowUp" : "arrowDown") : "chevronsUpDown"}
+                        className={`size-3.5 ${active ? "" : "opacity-40"}`}
+                      />
                     </button>
                   </th>
                 );
