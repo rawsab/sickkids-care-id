@@ -10,10 +10,22 @@ npm install                # also generates the Prisma client
 cp .env.example .env
 npm run db:up              # Postgres via Docker (or point DATABASE_URL at your own)
 npm run db:migrate
+npm run db:seed            # loads synthetic.csv
 npm run dev
 ```
 
-Open http://localhost:3000. Upload `example.csv` (5 rows) or `synthetic.csv` (60,000 made-up rows covering every GTA FSA for the past year) at `/admin/upload`. Regenerate the synthetic file with `npm run data:synthetic`.
+Open http://localhost:3000.
+
+### Demo data
+
+`synthetic.csv` holds 60,000 made-up results covering every GTA FSA from September 2025 to October 2026.
+
+- `npm run db:seed` loads it through the same de-identification pipeline as the upload page. Running it again does nothing.
+- `npm run db:seed -- example.csv` loads a different file.
+- `npm run db:reset` wipes the database, re-applies migrations and loads `synthetic.csv` again.
+- `npm run data:synthetic` regenerates `synthetic.csv`; the output is the same each time.
+
+You can also upload files at `/admin/upload`.
 
 ### Map boundaries
 

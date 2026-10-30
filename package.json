@@ -13,6 +13,8 @@
     "db:up": "docker compose up -d db",
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
+    "db:seed": "node --env-file=.env --conditions=react-server --import tsx scripts/seed.ts",
+    "db:reset": "prisma migrate reset --force && npm run db:seed",
     "data:synthetic": "tsx scripts/gen-synthetic.ts",
     "geo:build": "tsx scripts/build-fsa-geo.ts"
   },
