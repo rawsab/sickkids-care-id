@@ -1,3 +1,4 @@
+import type { Dictionary } from "@/i18n/dictionaries/en";
 import type { Sex } from "@/lib/ingest/validate";
 import { normaliseFsa } from "@/lib/regions";
 import type { SeriesFilter } from "@/lib/queries";
@@ -6,19 +7,9 @@ import { VIRUSES, type VirusKey } from "@/lib/viruses";
 type SearchParams = Record<string, string | string[] | undefined>;
 
 export const DEFAULT_VIRUSES: VirusKey[] = ["COVID19", "INF_ANY", "RSV"];
-export const WEEK_OPTIONS = [
-  { value: "8", label: "Last 8 weeks" },
-  { value: "12", label: "Last 12 weeks" },
-  { value: "26", label: "Last 26 weeks" },
-  { value: "52", label: "Last 52 weeks" },
-  { value: "all", label: "All available" },
-];
-export const SEX_OPTIONS: { value: Sex; label: string }[] = [
-  { value: "FEMALE", label: "Female" },
-  { value: "MALE", label: "Male" },
-  { value: "OTHER", label: "Other" },
-  { value: "UNKNOWN", label: "Not reported" },
-];
+// Labels: dashboard.filters.weeks and common.sex in the dictionaries.
+export const WEEK_OPTIONS = ["8", "12", "26", "52", "all"];
+export const SEX_OPTIONS: Sex[] = ["FEMALE", "MALE", "OTHER", "UNKNOWN"];
 
 /** Dashboard filter state, kept in the URL so views can be bookmarked and shared. */
 export interface DashboardFilters extends SeriesFilter {
@@ -39,8 +30,8 @@ export function parseFilters(sp: SearchParams): DashboardFilters {
   const region = kind === "region" && value ? value : undefined;
   const fsa = kind === "fsa" ? (normaliseFsa(value) ?? undefined) : undefined;
 
-  const weeksParam = WEEK_OPTIONS.some((o) => o.value === first(sp.weeks)) ? first(sp.weeks)! : "12";
-  const sex = SEX_OPTIONS.find((o) => o.value === first(sp.sex))?.value;
+  const weeksParam = WEEK_OPTIONS.includes(first(sp.weeks) ?? "") ? first(sp.weeks)! : "12";
+  const sex = SEX_OPTIONS.find((o) => o === first(sp.sex));
 
   return {
     viruses: viruses.length ? VIRUSES.map((v) => v.key).filter((k) => viruses.includes(k)) : DEFAULT_VIRUSES,
@@ -66,8 +57,8 @@ export function filtersToQuery(f: DashboardFilters): string {
   return q.toString();
 }
 
-export function areaLabel(f: DashboardFilters): string {
-  if (f.region) return f.region;
-  if (f.fsa) return `FSA ${f.fsa}`;
-  return "All areas";
+export function areaLabel(f: DashboardFilters, dict: Dictionary): string {
+  if (f.region) return dict.common.regions[f.region] ?? f.region;
+  if (f.fsa) return dict.dashboard.fsaArea.replace("{fsa}", f.fsa);
+  return dict.dashboard.allAreas;
 }

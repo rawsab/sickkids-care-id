@@ -4,8 +4,6 @@ export type TestResult = "detected" | "not_detected" | "indeterminate";
 
 export interface VirusDef {
   key: VirusKey;
-  label: string;
-  shortLabel: string;
   /** CSV column the result comes from; null for derived series. */
   sourceColumn: string | null;
   /** Fixed data colour for this virus in every chart (order validated for colour-vision deficiency). */
@@ -13,11 +11,12 @@ export interface VirusDef {
 }
 
 export const VIRUSES: readonly VirusDef[] = [
-  { key: "COVID19", label: "COVID-19", shortLabel: "COVID-19", sourceColumn: "CORO19", color: "#2a78d6" },
-  { key: "INF_ANY", label: "Influenza (A or B)", shortLabel: "Influenza", sourceColumn: null, color: "#eb6834" },
-  { key: "INF_A", label: "Influenza A", shortLabel: "Flu A", sourceColumn: "INF_A", color: "#6250d6" },
-  { key: "INF_B", label: "Influenza B", shortLabel: "Flu B", sourceColumn: "INF_B", color: "#eda100" },
-  { key: "RSV", label: "RSV", shortLabel: "RSV", sourceColumn: "RSV_PCR", color: "#1baf7a" },
+  // Names live in the dictionaries (common.viruses).
+  { key: "COVID19", sourceColumn: "CORO19", color: "#2a78d6" },
+  { key: "INF_ANY", sourceColumn: null, color: "#eb6834" },
+  { key: "INF_A", sourceColumn: "INF_A", color: "#6250d6" },
+  { key: "INF_B", sourceColumn: "INF_B", color: "#eda100" },
+  { key: "RSV", sourceColumn: "RSV_PCR", color: "#1baf7a" },
 ];
 
 export const VIRUS_BY_KEY = Object.fromEntries(VIRUSES.map((v) => [v.key, v])) as Record<VirusKey, VirusDef>;

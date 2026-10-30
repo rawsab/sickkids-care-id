@@ -2,9 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { TrendChart } from "@/components/trend-chart";
+import { Icon } from "@/components/ui/icons";
 import { ButtonLink, Card, EmptyState } from "@/components/ui/primitives";
 import { Sparkline } from "@/components/ui/sparkline";
-import { pct, shortWeek, weekLabel } from "@/lib/format";
+import type { Dictionary } from "@/i18n/dictionaries/en";
+import { INTL_LOCALE, localePath, type Locale } from "@/i18n/config";
+import { formatNumber, formatPct, plural, t } from "@/i18n/format";
+import { getI18n } from "@/i18n/server";
+import { shortWeek, weekLabel } from "@/lib/format";
 import { PRIVACY_RULES, type PublishedCell } from "@/lib/privacy";
 import { getAgeBands, getAreas, getDataRange, getFsaPositivity, getLastUploadAt, getWeeklySeries } from "@/lib/queries";
 import { VIRUS_BY_KEY, type VirusKey } from "@/lib/viruses";
@@ -12,14 +17,13 @@ import { DashboardMap } from "./dashboard-map";
 import { FilterBar } from "./filter-bar";
 import { areaLabel, filtersToQuery, parseFilters, type DashboardFilters } from "./filters";
 
-export const metadata: Metadata = { title: "Public health dashboard" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { dict } = await getI18n();
+  return { title: dict.dashboard.metaTitle };
+}
 
-const TABS = [
-  { id: "trends", label: "Trends" },
-  { id: "map", label: "Map" },
-  { id: "table", label: "Data table" },
-] as const;
-type TabId = (typeof TABS)[number]["id"];
+const TABS = ["trends", "map", "table"] as const;
+type TabId = (typeof TABS)[number];
 
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
@@ -29,8 +33,10 @@ export default async function Dashboard({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const sp = await searchParams;
+  const { locale, dict } = await getI18n();
+  const d = dict.dashboard;
   const filters = parseFilters(sp);
-  const tab: TabId = TABS.some((t) => t.id === first(sp.tab)) ? (first(sp.tab) as TabId) : "trends";
+  const tab: TabId = TABS.includes(first(sp.tab) as TabId) ? (first(sp.tab) as TabId) : "trends";
   const mapVirusParam = first(sp.mapVirus) as VirusKey | undefined;
   const mapVirus = mapVirusParam && filters.viruses.includes(mapVirusParam) ? mapVirusParam : filters.viruses[0];
 
@@ -38,10 +44,10 @@ export default async function Dashboard({
   if (!range) {
     return (
       <>
-        <PageHeader eyebrow="Public health" title="Respiratory virus dashboard" />
+        <PageHeader eyebrow={d.eyebrow} title={d.title} />
         <div className="mx-auto max-w-3xl px-4 py-16">
-          <EmptyState title="No results uploaded yet" action={<ButtonLink href="/admin/upload">Upload results</ButtonLink>}>
-            Weekly positivity trends will appear here once school testing results are uploaded.
+          <EmptyState title={d.emptyTitle} action={<ButtonLink href={localePath(locale, "/admin/upload")}>{d.emptyAction}</ButtonLink>}>
+            {d.emptyBody}
           </EmptyState>
         </div>
       </>
@@ -59,29 +65,31 @@ export default async function Dashboard({
   const tabHref = (id: TabId) => {
     const q = new URLSearchParams(filtersToQuery(filters));
     if (id !== "trends") q.set("tab", id);
-    return `/dashboard?${q}`;
+    return `${localePath(locale, "/dashboard")}?${q}`;
   };
 
   return (
     <>
       <PageHeader
-        eyebrow="Public health"
-        title="Respiratory virus dashboard"
+        eyebrow={d.eyebrow}
+        title={d.title}
         lead={
           <>
-            Weekly percent positivity from school testing · <span className="font-medium text-text">{areaLabel(filters)}</span>
+            {d.lead.split("{area}")[0]}
+            <span className="font-medium text-text">{areaLabel(filters, dict)}</span>
+            {d.lead.split("{area}")[1]}
           </>
         }
       >
         <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm text-text-muted">
           <div className="flex gap-1.5">
-            <dt>Latest week:</dt>
-            <dd className="font-medium text-text">{weekLabel(range.latest)}</dd>
+            <dt>{d.latestWeek}</dt>
+            <dd className="font-medium text-text">{weekLabel(range.latest, locale, dict.common.weekLabel)}</dd>
           </div>
           {lastUpload && (
             <div className="flex gap-1.5">
-              <dt>Data as of:</dt>
-              <dd className="font-medium text-text">{lastUpload.toLocaleDateString("en-CA", { dateStyle: "medium" })}</dd>
+              <dt>{d.dataAsOf}</dt>
+              <dd className="font-medium text-text">{lastUpload.toLocaleDateString(INTL_LOCALE[locale], { dateStyle: "medium" })}</dd>
             </div>
           )}
         </dl>
@@ -92,28 +100,28 @@ export default async function Dashboard({
       <div className="mx-auto max-w-[90rem] space-y-6 px-4 py-6 sm:px-6">
         <section aria-labelledby="kpi-heading">
           <h2 id="kpi-heading" className="sr-only">
-            Latest week by virus
+            {d.kpiHeading}
           </h2>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-4">
             {filters.viruses.map((v) => (
-              <KpiCard key={v} virus={v} cells={series[v]} rolling={!!filters.rolling} />
+              <KpiCard key={v} virus={v} cells={series[v]} rolling={!!filters.rolling} locale={locale} dict={dict} />
             ))}
           </div>
         </section>
 
         <Card className="overflow-hidden">
-          <nav aria-label="Dashboard views" className="flex gap-1 border-b border-border px-3 pt-2">
-            {TABS.map((t) => (
+          <nav aria-label={d.tabsLabel} className="flex gap-1 border-b border-border px-3 pt-2">
+            {TABS.map((id) => (
               <Link
-                key={t.id}
-                href={tabHref(t.id)}
+                key={id}
+                href={tabHref(id)}
                 scroll={false}
-                aria-current={t.id === tab ? "page" : undefined}
+                aria-current={id === tab ? "page" : undefined}
                 className={`-mb-px border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors ${
-                  t.id === tab ? "border-brand-blue text-brand-navy" : "border-transparent text-text-muted hover:text-text"
+                  id === tab ? "border-brand-blue text-brand-navy" : "border-transparent text-text-muted hover:text-text"
                 }`}
               >
-                {t.label}
+                {d.tabs[id]}
               </Link>
             ))}
           </nav>
@@ -121,19 +129,19 @@ export default async function Dashboard({
           <div className="p-4 sm:p-6">
             {tab === "trends" && (
               <>
-                <h2 className="sr-only">Percent positivity over time</h2>
+                <h2 className="sr-only">{d.trendsHeading}</h2>
                 <TrendChart
                   weeks={weeks}
                   lines={filters.viruses.map((v) => ({
                     key: v,
-                    label: VIRUS_BY_KEY[v].label,
+                    label: dict.common.viruses[v].label,
                     color: VIRUS_BY_KEY[v].color,
                     values: series[v].map((c) => (c.suppressed ? null : c.positivity)),
                   }))}
                 />
                 <p className="mt-3 text-xs text-text-subtle">
-                  {filters.rolling ? "3-week rolling percent positivity. " : ""}Gaps mark weeks with fewer than{" "}
-                  {PRIVACY_RULES.ph.minTests} tests, which are suppressed. The data table has the same figures.
+                  {filters.rolling ? d.rollingNote : ""}
+                  {t(d.gapsNote, { minTests: PRIVACY_RULES.ph.minTests })}
                 </p>
               </>
             )}
@@ -144,11 +152,11 @@ export default async function Dashboard({
                 filters={filters}
                 mapVirus={mapVirus}
                 regions={regions}
-                periodLabel={filters.rolling ? `3 weeks ending ${shortWeek(range.latest)}` : `week of ${shortWeek(range.latest)}`}
+                periodLabel={t(filters.rolling ? d.periodRolling : d.periodWeek, { date: shortWeek(range.latest, locale) })}
               />
             )}
 
-            {tab === "table" && <DataTable filters={filters} weeks={weeks} series={series} />}
+            {tab === "table" && <DataTable filters={filters} weeks={weeks} series={series} locale={locale} dict={dict} />}
           </div>
         </Card>
       </div>
@@ -156,8 +164,22 @@ export default async function Dashboard({
   );
 }
 
-function KpiCard({ virus, cells, rolling }: { virus: VirusKey; cells: PublishedCell<string>[]; rolling: boolean }) {
+function KpiCard({
+  virus,
+  cells,
+  rolling,
+  locale,
+  dict,
+}: {
+  virus: VirusKey;
+  cells: PublishedCell<string>[];
+  rolling: boolean;
+  locale: Locale;
+  dict: Dictionary;
+}) {
   const def = VIRUS_BY_KEY[virus];
+  const k = dict.dashboard.kpi;
+  const label = dict.common.viruses[virus].label;
   const latest = cells.at(-1);
   const previous = cells.at(-2);
   const change =
@@ -167,14 +189,15 @@ function KpiCard({ virus, cells, rolling }: { virus: VirusKey; cells: PublishedC
     <Card className="p-4">
       <p className="flex items-center gap-2 text-sm font-medium text-text-muted">
         <span aria-hidden className="size-2.5 rounded-full" style={{ background: def.color }} />
-        {def.label}
+        {label}
       </p>
       {latest && !latest.suppressed ? (
         <div className="mt-2 flex items-end justify-between gap-3">
           <div>
-            <p className="text-3xl font-bold tracking-tight text-text">{pct(latest.positivity)}</p>
+            <p className="text-3xl font-bold tracking-tight text-text">{formatPct(locale, latest.positivity)}</p>
             <p className="tabular mt-0.5 text-xs text-text-muted">
-              {latest.nDetected.toLocaleString()} of {latest.tested.toLocaleString()} tests{rolling && " · 3 wk"}
+              {t(k.tests, { detected: formatNumber(locale, latest.nDetected), tested: formatNumber(locale, latest.tested) })}
+              {rolling && k.rollingSuffix}
             </p>
           </div>
           <Sparkline
@@ -182,19 +205,21 @@ function KpiCard({ virus, cells, rolling }: { virus: VirusKey; cells: PublishedC
             color={def.color}
             width={88}
             height={36}
-            label={`${def.label} positivity trend`}
+            label={t(k.trendLabel, { virus: label })}
           />
         </div>
       ) : (
         <p className="mt-3 text-sm text-text-muted">
-          {latest?.suppressed && latest.reason === "no_data" ? "No tests this week" : "Too few tests to report"}
+          {latest?.suppressed && latest.reason === "no_data" ? k.noTests : k.tooFew}
         </p>
       )}
       {change !== null && (
-        <p className="mt-3 inline-flex items-center gap-1 rounded-full bg-surface-muted px-2 py-0.5 text-xs font-medium text-text">
-          <span aria-hidden>{change > 0.05 ? "▲" : change < -0.05 ? "▼" : "–"}</span>
-          {Math.abs(change) < 0.05 ? "No change" : `${Math.abs(change).toFixed(1)} pts ${change > 0 ? "higher" : "lower"}`}
-          <span className="text-text-muted">vs last week</span>
+        <p className="mt-3 inline-flex flex-wrap items-center gap-x-1 rounded-lg bg-surface-muted px-2 py-1 text-xs font-medium text-text">
+          <Icon name={change > 0.05 ? "arrowUp" : change < -0.05 ? "arrowDown" : "minus"} className="size-3.5" />
+          {Math.abs(change) < 0.05
+            ? k.noChange
+            : plural(locale, Number(Math.abs(change).toFixed(1)), change > 0 ? k.higher : k.lower, {}, { minimumFractionDigits: 1 })}
+          <span className="text-text-muted">{k.vsLastWeek}</span>
         </p>
       )}
     </Card>
@@ -205,27 +230,32 @@ function DataTable({
   filters,
   weeks,
   series,
+  locale,
+  dict,
 }: {
   filters: DashboardFilters;
   weeks: string[];
   series: Record<string, PublishedCell<string>[]>;
+  locale: Locale;
+  dict: Dictionary;
 }) {
+  const d = dict.dashboard.table;
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-semibold">Weekly percent positivity</h2>
-        <ButtonLink href={`/dashboard/export?${filtersToQuery(filters)}`} variant="secondary" prefetch={false}>
-          Download CSV
+        <h2 className="font-semibold">{d.title}</h2>
+        <ButtonLink href={`${localePath(locale, "/dashboard/export")}?${filtersToQuery(filters)}`} variant="secondary" prefetch={false}>
+          {d.download}
         </ButtonLink>
       </div>
       <div className="max-h-[32rem] overflow-auto rounded-xl ring-1 ring-border">
         <table className="w-full text-left text-sm">
           <thead className="sticky top-0 bg-surface-muted text-text-muted">
             <tr>
-              <th scope="col" className="px-4 py-2.5 font-semibold">Week of</th>
+              <th scope="col" className="whitespace-nowrap px-4 py-2.5 font-semibold">{d.weekOf}</th>
               {filters.viruses.map((v) => (
-                <th key={v} scope="col" className="px-4 py-2.5 text-right font-semibold">
-                  {VIRUS_BY_KEY[v].shortLabel}
+                <th key={v} scope="col" className="whitespace-nowrap px-4 py-2.5 text-right font-semibold">
+                  {dict.common.viruses[v].short}
                 </th>
               ))}
             </tr>
@@ -235,16 +265,23 @@ function DataTable({
               const i = weeks.length - 1 - ri;
               return (
                 <tr key={week} className="hover:bg-surface-muted/60">
-                  <th scope="row" className="px-4 py-2.5 font-medium">{shortWeek(week)}</th>
+                  <th scope="row" className="whitespace-nowrap px-4 py-2.5 font-medium">{shortWeek(week, locale)}</th>
                   {filters.viruses.map((v) => {
                     const c = series[v][i];
                     return (
                       <td key={v} className="px-4 py-2.5 text-right">
                         {c.suppressed ? (
-                          <span className="text-text-subtle">{c.reason === "no_data" ? "—" : "Suppressed"}</span>
+                          c.reason === "no_data" ? (
+                            <span className="text-text-subtle">
+                              <span aria-hidden>—</span>
+                              <span className="sr-only">{d.noData}</span>
+                            </span>
+                          ) : (
+                            <span className="text-text-subtle">{d.suppressed}</span>
+                          )
                         ) : (
                           <>
-                            <span className="font-medium">{pct(c.positivity)}</span>{" "}
+                            <span className="font-medium">{formatPct(locale, c.positivity)}</span>{" "}
                             <span className="text-text-subtle">
                               {c.nDetected}/{c.tested}
                             </span>

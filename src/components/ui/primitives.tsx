@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
+import { Icon } from "./icons";
 
 type Variant = "primary" | "secondary" | "ghost";
 
@@ -44,8 +45,8 @@ export function Skeleton({ className = "" }: { className?: string }) {
 export function EmptyState({ title, children, action }: { title: string; children?: ReactNode; action?: ReactNode }) {
   return (
     <Card className="flex flex-col items-center px-6 py-14 text-center">
-      <div aria-hidden className="mb-4 grid size-12 place-items-center rounded-full bg-brand-sky text-xl text-brand-blue">
-        ◎
+      <div className="mb-4 grid size-12 place-items-center rounded-full bg-brand-sky text-brand-blue">
+        <Icon name="activity" className="size-6" />
       </div>
       <h2 className="text-lg font-semibold">{title}</h2>
       {children && <div className="mt-1 max-w-md text-text-muted">{children}</div>}
@@ -55,4 +56,4 @@ export function EmptyState({ title, children, action }: { title: string; childre
 }
 
 export const inputClass =
-  "w-full rounded-[var(--radius-control)] border border-border-strong bg-surface px-3 py-2.5 text-sm text-text shadow-[inset_0_1px_1px_rgb(15_27_45/0.04)] placeholder:text-text-subtle focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20";
+  "w-full rounded-[var(--radius-control)] border border-border-control bg-surface px-3 py-2.5 text-sm text-text shadow-[inset_0_1px_1px_rgb(15_27_45/0.04)] placeholder:text-text-subtle focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20";

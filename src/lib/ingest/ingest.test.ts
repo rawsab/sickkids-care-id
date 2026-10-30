@@ -72,12 +72,12 @@ describe("validation", () => {
       { today },
     );
     expect(errors.map((e) => e.rowNumber)).toEqual([2, 3, 4, 5, 6, 7]);
-    expect(errors[0].messages).toEqual(["AGE_IN_YEARS is required"]);
-    expect(errors[1].messages[0]).toMatch(/DTM_COL must be a date/);
-    expect(errors[2].messages).toEqual(["DTM_COL is in the future"]);
-    expect(errors[3].messages[0]).toMatch(/^INF_A must be/);
-    expect(errors[4].messages).toEqual(["FSA is not a known Ontario FSA"]);
-    expect(errors[5].messages).toEqual(["has no test results"]);
+    expect(errors[0].issues).toEqual([{ column: "AGE_IN_YEARS", code: "required" }]);
+    expect(errors[1].issues[0]).toEqual({ column: "DTM_COL", code: "dateFormat" });
+    expect(errors[2].issues).toEqual([{ column: "DTM_COL", code: "futureDate" }]);
+    expect(errors[3].issues[0]).toEqual({ column: "INF_A", code: "resultValue" });
+    expect(errors[4].issues).toEqual([{ column: "FSA", code: "unknownFsa" }]);
+    expect(errors[5].issues).toEqual([{ code: "noResults" }]);
     expect(valid).toHaveLength(1);
     expect(valid[0]).toMatchObject({ fsa: "M5G", sex: "FEMALE", results: { INF_A: "detected", INF_B: "not_detected" } });
   });

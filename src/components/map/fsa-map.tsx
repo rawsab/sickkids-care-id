@@ -4,6 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { setWorkerUrl, type ExpressionSpecification } from "maplibre-gl";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Map, { Layer, NavigationControl, Source, type MapLayerMouseEvent, type MapRef } from "react-map-gl/maplibre";
+import { useI18n } from "@/i18n/client";
 import { bboxOf, type FsaCollection } from "@/lib/geo";
 
 const BASEMAP_STYLE =
@@ -35,6 +36,15 @@ function hatchImage(size = 8) {
   return { width: size, height: size, data };
 }
 
+// MapLibre needs WebGL2; some older devices and locked-down browsers lack it.
+function hasWebGL2() {
+  try {
+    return !!document.createElement("canvas").getContext("webgl2");
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Choropleth of GTA FSAs. FSAs with a colour in `fillColors` are filled; all
  * others (suppressed or no data) are hatched. Shared by the community map and
@@ -49,6 +59,8 @@ export function FsaMap({
   padding,
   label,
   cooperative = false,
+  controlsInset = 0,
+  unsupportedMessage,
 }: {
   geojson: FsaCollection;
   fillColors: Record<string, string>;
@@ -59,7 +71,13 @@ export function FsaMap({
   label: string;
   /** For maps embedded in a scrolling page: require Ctrl/⌘ + scroll (or two fingers) to zoom. */
   cooperative?: boolean;
+  /** Lifts the zoom buttons and attribution above anything covering the bottom of the map (px). */
+  controlsInset?: number;
+  /** Shown instead of the map when the browser can't run MapLibre (no WebGL2). */
+  unsupportedMessage: string;
 }) {
+  const { dict } = useI18n();
+  const [supported] = useState(hasWebGL2);
   const mapRef = useRef<MapRef>(null);
   const [beforeId, setBeforeId] = useState<string | undefined>();
   const [ready, setReady] = useState(false);
@@ -108,8 +126,23 @@ export function FsaMap({
 
   const fsaFromEvent = (e: MapLayerMouseEvent) => e.features?.[0]?.properties?.CFSAUID as string | undefined;
 
+  if (!supported) {
+    return (
+      <div role="status" className="grid size-full place-items-center bg-map-canvas p-6">
+        <p className="max-w-sm rounded-xl bg-surface px-4 py-3 text-center text-sm text-text-muted shadow-raised ring-1 ring-border">
+          {unsupportedMessage}
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative size-full" role="region" aria-label={label}>
+    <div
+      className="fsa-map relative size-full"
+      role="region"
+      aria-label={label}
+      style={{ "--controls-inset": `${controlsInset}px` } as React.CSSProperties}
+    >
       <Map
         ref={mapRef}
         mapStyle={BASEMAP_STYLE}
@@ -118,6 +151,7 @@ export function FsaMap({
         maxZoom={14}
         dragRotate={false}
         cooperativeGestures={cooperative}
+        locale={dict.mapControls}
         pitchWithRotate={false}
         touchPitch={false}
         interactiveLayerIds={["fsa-fill"]}
@@ -140,7 +174,7 @@ export function FsaMap({
           const fsa = fsaFromEvent(e);
           if (fsa) onSelect(fsa);
         }}
-        attributionControl={{ compact: true, customAttribution: "Boundaries: Statistics Canada" }}
+        attributionControl={{ compact: true, customAttribution: dict.mapControls.boundaries }}
       >
         <NavigationControl position="bottom-right" showCompass={false} />
         {ready && (

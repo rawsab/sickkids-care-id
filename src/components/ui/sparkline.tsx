@@ -1,3 +1,7 @@
+"use client";
+
+import { useI18n } from "@/i18n/client";
+
 /** Tiny inline trend line. Nulls (suppressed weeks) break the line rather than being bridged. */
 export function Sparkline({
   values,
@@ -12,9 +16,10 @@ export function Sparkline({
   height?: number;
   label?: string;
 }) {
+  const { dict } = useI18n();
   const known = values.filter((v): v is number => v !== null);
   if (known.length === 0) {
-    return <span className="text-xs text-text-subtle">No trend available</span>;
+    return <span className="text-xs text-text-subtle">{dict.common.noTrend}</span>;
   }
   const max = Math.max(10, ...known);
   const pad = 3;
