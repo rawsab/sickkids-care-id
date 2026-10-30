@@ -36,9 +36,16 @@ export function DashboardMap({
   const router = useRouter();
   const pathname = usePathname();
   const [geojson, setGeojson] = useState<FsaCollection | null>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    fetch(FSA_GEOJSON_URL).then((r) => r.json()).then(setGeojson);
+    fetch(FSA_GEOJSON_URL)
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then(setGeojson)
+      .catch(() => setFailed(true));
   }, []);
 
   const fillColors = useMemo(
@@ -91,12 +98,20 @@ export function DashboardMap({
               );
             }}
           />
+        ) : failed ? (
+          <div role="alert" className="grid size-full place-items-center bg-surface-muted p-6 text-center">
+            <p className="max-w-sm text-sm text-text-muted">
+              The map couldn&apos;t be loaded. Reload the page to try again. The Trends and Data table tabs still work.
+            </p>
+          </div>
         ) : (
           <Skeleton className="size-full rounded-none" />
         )}
-        <div className="absolute right-3 top-3 z-10">
-          <PositivityLegend title="Percent positive" />
-        </div>
+        {!failed && (
+          <div className="absolute right-3 top-3 z-10">
+            <PositivityLegend title="Percent positive" />
+          </div>
+        )}
       </div>
     </div>
   );
