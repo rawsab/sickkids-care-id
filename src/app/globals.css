@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Brand values are PLACEHOLDERS in the SickKids style — confirm
+ * exact colours, typeface and logo usage with SickKids Communications and
+ * update them here only. Virus data colours live in src/lib/viruses.ts.
+ */
+:root {
+  color-scheme: light;
+
+  --brand-navy: #00205b;
+  --brand-blue: #0067b1;
+  --brand-blue-dark: #004f88;
+  --brand-sky: #e8f2fb;
+  --brand-accent: #f2a900;
+
+  /* Surfaces, from the page plane up to floating overlays. */
+  --canvas: #f5f7fa;
+  --surface: #ffffff;
+  --surface-muted: #f0f3f7;
+  --border: #e2e7ee;
+  --border-strong: #c9d1dc;
+
+  --text: #0f1b2d;
+  --text-muted: #556274;
+  --text-subtle: #7a8696;
+
+  /* Activity level and virus colours live in src/lib/display.ts and
+     src/lib/viruses.ts (the map and charts need literal values). */
+
+  --danger: #b3261e;
+  --success: #1f7a3a;
+}
+
+@theme inline {
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-dark: var(--brand-blue-dark);
+  --color-brand-sky: var(--brand-sky);
+  --color-brand-accent: var(--brand-accent);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --shadow-card: 0 1px 2px rgb(15 27 45 / 0.05), 0 1px 3px rgb(15 27 45 / 0.04);
+  --shadow-raised: 0 4px 12px -2px rgb(15 27 45 / 0.08), 0 2px 4px -2px rgb(15 27 45 / 0.05);
+  --shadow-overlay: 0 18px 40px -12px rgb(15 27 45 / 0.25), 0 4px 10px -4px rgb(15 27 45 / 0.08);
+
+  --radius-card: 1rem;
+  --radius-control: 0.625rem;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+}
+
+:focus-visible {
+  outline: 3px solid var(--brand-accent);
+  outline-offset: 2px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Diagonal hatch for "not enough data" swatches (matches the map pattern). */
+.hatch {
+  background: repeating-linear-gradient(135deg, #e6eaf0 0 3px, #c3cbd6 3px 4.5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
