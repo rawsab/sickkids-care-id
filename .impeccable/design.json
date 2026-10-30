@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-30T00:00:00Z",
+  "title": "Design System: CARE-ID",
+  "extensions": {
+    "colorMeta": {
+      "hospital-navy": {
+        "role": "primary",
+        "displayName": "Hospital Navy",
+        "canonical": "#00205b",
+        "tonalRamp": [
+          "#000f2e",
+          "#00184a",
+          "#00205b",
+          "#1a3a78",
+          "#3d5a92",
+          "#6b83b0",
+          "#a3b4d1",
+          "#dbe3f0"
+        ]
+      },
+      "clinical-blue": {
+        "role": "primary",
+        "displayName": "Clinical Blue",
+        "canonical": "#0067b1",
+        "tonalRamp": [
+          "#00294a",
+          "#003d6b",
+          "#004f88",
+          "#0067b1",
+          "#3a8bcb",
+          "#7cb3df",
+          "#b8d6ef",
+          "#e8f2fb"
+        ]
+      },
+      "sky-wash": {
+        "role": "primary",
+        "displayName": "Sky Wash",
+        "canonical": "#e8f2fb"
+      },
+      "signal-amber": {
+        "role": "secondary",
+        "displayName": "Signal Amber",
+        "canonical": "#f2a900",
+        "tonalRamp": [
+          "#5c3f00",
+          "#8a5f00",
+          "#b88000",
+          "#f2a900",
+          "#f7c140",
+          "#fad580",
+          "#fde8b8",
+          "#fff6e0"
+        ]
+      },
+      "ember-low": {
+        "role": "tertiary",
+        "displayName": "Ember Low",
+        "canonical": "#ee9e5c"
+      },
+      "ember-moderate": {
+        "role": "tertiary",
+        "displayName": "Ember Moderate",
+        "canonical": "#d9622b"
+      },
+      "ember-high": {
+        "role": "tertiary",
+        "displayName": "Ember High",
+        "canonical": "#9e3410"
+      },
+      "no-data-grey": {
+        "role": "tertiary",
+        "displayName": "No-data Grey",
+        "canonical": "#a3adba"
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Canvas",
+        "canonical": "#f5f7fa"
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "canonical": "#ffffff"
+      },
+      "surface-muted": {
+        "role": "neutral",
+        "displayName": "Surface Muted",
+        "canonical": "#f0f3f7"
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Border",
+        "canonical": "#e2e7ee"
+      },
+      "border-strong": {
+        "role": "neutral",
+        "displayName": "Border Strong",
+        "canonical": "#c9d1dc"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#0f1b2d",
+        "tonalRamp": [
+          "#0f1b2d",
+          "#2a3647",
+          "#556274",
+          "#626e7c",
+          "#848f9f",
+          "#c9d1dc",
+          "#e2e7ee",
+          "#f5f7fa"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Ink Muted",
+        "canonical": "#556274"
+      },
+      "ink-subtle": {
+        "role": "neutral",
+        "displayName": "Ink Subtle",
+        "canonical": "#626e7c"
+      },
+      "border-control": {
+        "role": "neutral",
+        "displayName": "Border Control",
+        "canonical": "#848f9f"
+      },
+      "map-canvas": {
+        "role": "neutral",
+        "displayName": "Map Canvas",
+        "canonical": "#eef1f4"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Desktop page titles and KPI values."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Mobile page titles and section headings."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card, panel and area headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading copy; relaxed line-height in technical notes."
+      },
+      "body-small": {
+        "displayName": "Body Small",
+        "purpose": "Controls, tables, nav and panel copy."
+      },
+      "label": {
+        "displayName": "Eyebrow Label",
+        "purpose": "Uppercase Clinical Blue eyebrows above titles."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card",
+        "value": "0 1px 2px rgb(15 27 45 / 0.05), 0 1px 3px rgb(15 27 45 / 0.04)",
+        "purpose": "Cards and primary buttons at rest."
+      },
+      {
+        "name": "raised",
+        "value": "0 4px 12px -2px rgb(15 27 45 / 0.08), 0 2px 4px -2px rgb(15 27 45 / 0.05)",
+        "purpose": "Sticky header, map legends, active segment."
+      },
+      {
+        "name": "overlay",
+        "value": "0 18px 40px -12px rgb(15 27 45 / 0.25), 0 4px 10px -4px rgb(15 27 45 / 0.08)",
+        "purpose": "Floating map panel, tooltips, skip link."
+      }
+    ],
+    "motion": [
+      {
+        "name": "colors",
+        "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Tailwind default colour transitions on hover."
+      },
+      {
+        "name": "map-fit",
+        "value": "700ms",
+        "purpose": "Map fly-to when an area is selected."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single action colour; search, save, upload.",
+      "html": "<button class=\"ds-btn-primary\">Search</button>",
+      "css": ".ds-btn-primary { display:inline-flex; align-items:center; gap:8px; background:#0067b1; color:#fff; border:0; border-radius:10px; padding:10px 16px; font:600 14px/20px Inter, system-ui, sans-serif; box-shadow:0 1px 2px rgb(15 27 45 / 0.05), 0 1px 3px rgb(15 27 45 / 0.04); cursor:pointer; transition:background-color 150ms; } .ds-btn-primary:hover { background:#004f88; } .ds-btn-primary:focus-visible { outline:3px solid #f2a900; outline-offset:0; box-shadow:0 0 0 5px #00205b; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Outlined secondary action, e.g. Download CSV.",
+      "html": "<button class=\"ds-btn-secondary\">Download CSV</button>",
+      "css": ".ds-btn-secondary { background:#fff; color:#0f1b2d; border:1px solid #c9d1dc; border-radius:10px; padding:10px 16px; font:600 14px/20px Inter, system-ui, sans-serif; cursor:pointer; transition:background-color 150ms; } .ds-btn-secondary:hover { background:#f0f3f7; } .ds-btn-secondary:focus-visible { outline:3px solid #f2a900; outline-offset:0; box-shadow:0 0 0 5px #00205b; }"
+    },
+    {
+      "name": "Postal Code Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Text field with Clinical Blue focus ring.",
+      "html": "<input class=\"ds-input\" placeholder=\"Postal code, e.g. M5G 1X8\" />",
+      "css": ".ds-input { width:100%; background:#fff; color:#0f1b2d; border:1px solid #848f9f; border-radius:10px; padding:10px 12px; font:400 14px/20px Inter, system-ui, sans-serif; box-shadow:inset 0 1px 1px rgb(15 27 45 / 0.04); } .ds-input::placeholder { color:#626e7c; } .ds-input:focus-visible { border-color:#0067b1; outline:3px solid #f2a900; outline-offset:0; box-shadow:0 0 0 5px #00205b; }"
+    },
+    {
+      "name": "Site Header",
+      "kind": "nav",
+      "refersTo": "site-header",
+      "description": "Navy bar, wordmark tile, white nav links, Clinical Blue rule.",
+      "html": "<header class=\"ds-header\"><a class=\"ds-mark\"><span class=\"ds-tile\">C</span><span><b>CARE-ID</b><small>in partnership with SickKids</small></span></a><nav><a class=\"ds-nav ds-active\">Community map</a><a class=\"ds-nav\">Public health dashboard</a></nav></header>",
+      "css": ".ds-header { display:flex; align-items:center; justify-content:space-between; gap:24px; height:64px; padding:0 24px; background:#00205b; color:#fff; border-bottom:2px solid #0067b1; font-family:Inter, system-ui, sans-serif; } .ds-mark { display:flex; align-items:center; gap:12px; color:#fff; text-decoration:none; } .ds-tile { display:grid; place-items:center; width:32px; height:32px; border-radius:8px; background:#fff; color:#00205b; font-weight:700; font-size:14px; } .ds-mark b { display:block; font-size:15px; } .ds-mark small { display:block; font-size:12px; color:rgb(255 255 255 / 0.85); } .ds-nav { color:rgb(255 255 255 / 0.85); font-size:14px; font-weight:500; padding:8px 12px; border-radius:8px; text-decoration:none; cursor:pointer; } .ds-nav:hover { background:rgb(255 255 255 / 0.1); color:#fff; } .ds-active { background:rgb(255 255 255 / 0.15); color:#fff; }"
+    },
+    {
+      "name": "Virus Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip-virus-filter",
+      "description": "Toggle pill with virus colour dot; on and off states.",
+      "html": "<button class=\"ds-chip ds-on\"><span class=\"ds-dot\" style=\"background:#2a78d6;box-shadow:inset 0 0 0 2px #2a78d6\"></span>COVID-19</button> <button class=\"ds-chip\"><span class=\"ds-dot\" style=\"box-shadow:inset 0 0 0 2px #1baf7a\"></span>RSV</button>",
+      "css": ".ds-chip { display:inline-flex; align-items:center; gap:8px; height:36px; padding:0 12px; border-radius:9999px; border:0; background:transparent; color:#626e7c; box-shadow:0 0 0 1px #e2e7ee; font:500 14px Inter, system-ui, sans-serif; cursor:pointer; } .ds-chip:hover { color:#0f1b2d; } .ds-on { background:#fff; color:#0f1b2d; box-shadow:0 0 0 1px #c9d1dc, 0 1px 3px rgb(15 27 45 / 0.04); } .ds-dot { width:10px; height:10px; border-radius:9999px; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "White, softly lifted container with hairline ring.",
+      "html": "<div class=\"ds-card\"><h3>Results are de-identified</h3><p>Names, exact ages and dates are removed.</p></div>",
+      "css": ".ds-card { background:#fff; border-radius:16px; padding:24px; box-shadow:0 0 0 1px rgb(226 231 238 / 0.7), 0 1px 2px rgb(15 27 45 / 0.05), 0 1px 3px rgb(15 27 45 / 0.04); font-family:Inter, system-ui, sans-serif; } .ds-card h3 { margin:0; font-size:16px; font-weight:600; color:#0f1b2d; } .ds-card p { margin:4px 0 0; font-size:14px; color:#556274; }"
+    },
+    {
+      "name": "Activity Badge",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Signature: Ember dots + level word + trend; never colour alone.",
+      "html": "<span class=\"ds-badge\"><span class=\"ds-dots\"><i style=\"background:#d9622b;border-color:#d9622b\"></i><i style=\"background:#d9622b;border-color:#d9622b\"></i><i style=\"border-color:#d9622b\"></i></span><b>Moderate</b><span class=\"ds-trend\">↗ Rising</span></span>",
+      "css": ".ds-badge { display:inline-flex; align-items:center; gap:8px; font-family:Inter, system-ui, sans-serif; } .ds-dots { display:flex; gap:4px; } .ds-dots i { width:12px; height:12px; border-radius:9999px; border:1.5px solid; box-sizing:border-box; } .ds-badge b { font-weight:600; color:#0f1b2d; } .ds-trend { font-size:14px; color:#556274; }"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "custom",
+      "refersTo": "segmented-control",
+      "description": "Radio group on a muted track; active segment lifts.",
+      "html": "<div class=\"ds-seg\"><button class=\"ds-seg-on\">COVID-19</button><button>Influenza</button><button>RSV</button></div>",
+      "css": ".ds-seg { display:flex; padding:4px; border-radius:10px; background:#f0f3f7; font-family:Inter, system-ui, sans-serif; } .ds-seg button { flex:1; border:0; background:transparent; padding:6px 12px; border-radius:8px; font-size:14px; font-weight:600; color:#556274; cursor:pointer; } .ds-seg button:hover { color:#0f1b2d; } .ds-seg .ds-seg-on { background:#fff; color:#0f1b2d; box-shadow:0 4px 12px -2px rgb(15 27 45 / 0.08), 0 2px 4px -2px rgb(15 27 45 / 0.05); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Calm Bulletin",
+    "overview": "CARE-ID should read like a trusted public-health notice pinned up at a school: navy authority at the top, plain words underneath, and nothing that raises the pulse without a reason. The system is quiet on purpose. A cool grey page, white cards lifted by hairline rings and faint shadows, one blue for actions, and a single warm ramp reserved for virus activity. Colour is almost never decorative. When something is orange it means \"virus activity\". When something is blue it means \"you can act here\".",
+    "keyCharacteristics": [
+      "A navy header bar with a thin Clinical Blue rule beneath it marks the product as an institution.",
+      "White cards on a cool grey canvas, softly lifted.",
+      "One warm, ordinal Ember ramp for activity levels. Every activity colour is paired with dots and a word.",
+      "A fixed colour for each virus, the same in every chart, chip and legend.",
+      "Inter throughout, with tabular figures for numbers.",
+      "The focus ring is amber, the system's only loud colour."
+    ],
+    "rules": [
+      {
+        "name": "The Data Owns Warmth Rule",
+        "body": "Orange and red tones belong to virus activity. Interface chrome (buttons, headers, badges, alerts other than warnings) never uses the Ember ramp, so a warm colour on screen always means \"virus\".",
+        "section": "colors"
+      },
+      {
+        "name": "The Never Colour Alone Rule",
+        "body": "Every activity level pairs its colour with filled dots (1, 2 or 3) and a word. Every chart line carries an end label. Every virus chip and summary row pairs its colour dot with the virus name. A design that encodes meaning only in hue is wrong.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Blue Rule",
+        "body": "Clinical Blue means \"interactive\". Don't use it for decoration, large fills or data, except in the dashboard's positivity blues, which stay inside the map.",
+        "section": "colors"
+      },
+      {
+        "name": "The Weight Not Face Rule",
+        "body": "Never introduce a second typeface for emphasis. Step up the weight (400 → 600 → 700) or the size.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Numbers Rule",
+        "body": "Any column, KPI or tooltip that shows numbers uses tabular figures so values align and don't jitter when filters change.",
+        "section": "typography"
+      },
+      {
+        "name": "The Three Steps Rule",
+        "body": "There are exactly three elevations: card, raised and overlay. Don't invent a fourth. If something needs more emphasis, change its position or colour, not its shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do pair every activity colour with dots and a word, using ActivityBadge. Never render a bare Ember swatch as the only signal outside a legend.",
+      "Do use the virus colours from src/lib/viruses.ts and the activity and positivity colours from src/lib/display.ts, never new literals.",
+      "Do use the hatch, and the words \"Not enough data\" or \"Too few tests\", for suppressed figures.",
+      "Do keep primary text in Ink and supporting text in Ink Muted. Use Ink Subtle for hints and metadata, and never anything lighter for text.",
+      "Do use the three named shadows (card, raised, overlay) and the radius scale above.",
+      "Do keep Clinical Blue for interactive elements and the navy for identity."
+    ],
+    "donts": [
+      "Don't use the SickKids logo or invent a mark. The header uses a wordmark only until approved co-branding artwork exists.",
+      "Don't colour interface chrome with the Ember ramp, or use red, orange or alarm styling to dramatise activity levels.",
+      "Don't introduce a second typeface or a decorative display face.",
+      "Don't add a fourth elevation level or grey-black shadows.",
+      "Don't show case counts or test counts on public (community) surfaces. Activity levels only.",
+      "Don't hard-code new hex values in components. Add a token in globals.css, or a data colour in display.ts or viruses.ts."
+    ]
+  }
+}
