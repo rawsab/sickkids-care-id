@@ -13,7 +13,7 @@ npm run db:migrate
 npm run dev
 ```
 
-Open http://localhost:3000. Upload `example.csv` (or `npm run data:synthetic` → `synthetic.csv`) at `/admin/upload`.
+Open http://localhost:3000. Upload `example.csv` (5 rows) or `synthetic.csv` (60,000 made-up rows covering every GTA FSA for the past year) at `/admin/upload`. Regenerate the synthetic file with `npm run data:synthetic`.
 
 ### Map boundaries
 
