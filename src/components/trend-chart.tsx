@@ -13,7 +13,7 @@ export interface TrendLine {
 const shortDate = (iso: string) =>
   new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-CA", { month: "short", day: "numeric", timeZone: "UTC" });
 
-const INK_MUTED = "#7a8696";
+const INK_MUTED = "#626e7c"; // --text-subtle; Recharts needs a literal
 const GRID = "#e9edf2";
 const MARGIN = { top: 12, right: 96, bottom: 4, left: 0 };
 const X_AXIS_HEIGHT = 30;

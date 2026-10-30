@@ -66,7 +66,7 @@ export function UploadForm() {
           setDragging(false);
           choose(e.dataTransfer.files[0]);
         }}
-        className={`flex cursor-pointer flex-col items-center justify-center rounded-[var(--radius-card)] border-2 border-dashed px-6 py-10 text-center transition-colors ${
+        className={`focus-proxy flex cursor-pointer flex-col items-center justify-center rounded-[var(--radius-card)] border-2 border-dashed px-6 py-10 text-center transition-colors ${
           dragging ? "border-brand-blue bg-brand-sky" : "border-border-strong bg-surface hover:border-brand-blue/60"
         }`}
       >

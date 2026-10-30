@@ -20,10 +20,13 @@
   --surface-muted: #f0f3f7;
   --border: #e2e7ee;
   --border-strong: #c9d1dc;
+  /* Outline of text inputs and selects; ≥3:1 against white (WCAG 1.4.11). */
+  --border-control: #848f9f;
 
   --text: #0f1b2d;
   --text-muted: #556274;
-  --text-subtle: #7a8696;
+  /* ≥4.5:1 on canvas, surface-muted and brand-sky, so it's safe for small text. */
+  --text-subtle: #626e7c;
 
   /* Activity level and virus colours live in src/lib/display.ts and
      src/lib/viruses.ts (the map and charts need literal values). */
@@ -43,6 +46,7 @@
   --color-surface-muted: var(--surface-muted);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
+  --color-border-control: var(--border-control);
   --color-text: var(--text);
   --color-text-muted: var(--text-muted);
   --color-text-subtle: var(--text-subtle);
@@ -66,9 +70,14 @@ body {
   font-feature-settings: "cv11", "ss01";
 }
 
-:focus-visible {
+/* Amber ring edged in navy: amber alone is only 2:1 on white, the navy edge
+   carries contrast on light surfaces and the amber on the navy header.
+   `.focus-proxy` shows the ring on a wrapper whose control is visually hidden. */
+:focus-visible,
+.focus-proxy:has(:focus-visible) {
   outline: 3px solid var(--brand-accent);
-  outline-offset: 2px;
+  outline-offset: 0;
+  box-shadow: 0 0 0 5px var(--brand-navy);
 }
 
 .tabular {

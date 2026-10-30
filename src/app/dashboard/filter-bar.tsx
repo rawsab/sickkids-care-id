@@ -6,7 +6,7 @@ import { VIRUSES, type VirusKey } from "@/lib/viruses";
 import { DEFAULT_VIRUSES, filtersToQuery, SEX_OPTIONS, WEEK_OPTIONS, type DashboardFilters } from "./filters";
 
 const selectClass =
-  "h-9 max-w-[10.5rem] rounded-[var(--radius-control)] border border-border-strong bg-surface pl-3 pr-8 text-sm text-text hover:border-text-subtle focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20";
+  "h-9 max-w-[10.5rem] rounded-[var(--radius-control)] border border-border-control bg-surface pl-3 pr-8 text-sm text-text hover:border-text-subtle focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20";
 
 /** Filters apply immediately; state lives in the URL so views can be shared. */
 export function FilterBar({

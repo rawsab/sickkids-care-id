@@ -55,4 +55,4 @@ export function EmptyState({ title, children, action }: { title: string; childre
 }
 
 export const inputClass =
-  "w-full rounded-[var(--radius-control)] border border-border-strong bg-surface px-3 py-2.5 text-sm text-text shadow-[inset_0_1px_1px_rgb(15_27_45/0.04)] placeholder:text-text-subtle focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20";
+  "w-full rounded-[var(--radius-control)] border border-border-control bg-surface px-3 py-2.5 text-sm text-text shadow-[inset_0_1px_1px_rgb(15_27_45/0.04)] placeholder:text-text-subtle focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20";
