@@ -52,7 +52,8 @@ export function FilterBar({
 
   return (
     <div
-      className="sticky top-16 z-30 border-b border-border bg-surface/95 backdrop-blur"
+      // Sticky only on wide screens: wrapped onto phones it would cover a third of the viewport.
+      className="z-30 border-b border-border bg-surface/95 backdrop-blur lg:sticky lg:top-16"
       aria-busy={pending}
     >
       <div className="mx-auto flex max-w-[90rem] flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 sm:px-6">
