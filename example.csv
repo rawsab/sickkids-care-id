@@ -1,0 +1,7 @@
+﻿Gender,AGE_IN_YEARS,DTM_COL,INF_A,INF_B,RSV_PCR,CORO19,FSA
+Male,11,2026-10-16,Not detected,Not detected,Not detected,Detected,M6H
+Female,7,2026-10-16,Detected,Not detected,Not detected,Not detected,M5M
+Female,8,2026-10-17,Detected,Not detected,Not detected,Indeterminate,M4C
+Female,10,2026-10-28,Not detected,Detected,Not detected,Indeterminate,M2K
+Male,12,2026-10-19,Not detected,Not detected,Detected,Not detected,M6H
+Male,8,2026-10-20,Not detected,Not detected,Not detected,Not detected,M6A
