@@ -1,0 +1,100 @@
+// CARE-ID schema. Raw test results are never persisted: uploads are
+// de-identified and aggregated in memory, and only weekly counts are stored.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  PH_USER
+}
+
+enum Virus {
+  INF_A
+  INF_B
+  INF_ANY
+  COVID19
+  RSV
+}
+
+enum Sex {
+  FEMALE
+  MALE
+  OTHER
+  UNKNOWN
+}
+
+enum UploadStatus {
+  ACTIVE
+  ROLLED_BACK
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(PH_USER)
+  createdAt DateTime @default(now())
+  uploads   Upload[]
+}
+
+model Upload {
+  id            String            @id @default(cuid())
+  fileName      String
+  fileSha256    String
+  uploadedBy    User?             @relation(fields: [uploadedById], references: [id])
+  uploadedById  String?
+  rowCount      Int
+  acceptedCount Int
+  rejectedCount Int
+  minDate       DateTime?         @db.Date
+  maxDate       DateTime?         @db.Date
+  status        UploadStatus      @default(ACTIVE)
+  createdAt     DateTime          @default(now())
+  rolledBackAt  DateTime?
+  aggregates    WeeklyAggregate[]
+
+  // Not unique: a rolled-back file may be uploaded again. Active duplicates
+  // are rejected in application code.
+  @@index([fileSha256])
+}
+
+model WeeklyAggregate {
+  id             String   @id @default(cuid())
+  upload         Upload   @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+  uploadId       String
+  // Sunday that starts the epi week the specimen was collected in.
+  weekStart      DateTime @db.Date
+  fsa            String   @db.Char(3)
+  region         String
+  // v2: schoolId String? — reporting level for individual schools.
+  virus          Virus
+  ageBand        String
+  sex            Sex
+  nDetected      Int
+  nNotDetected   Int
+  nIndeterminate Int
+
+  @@unique([uploadId, weekStart, fsa, virus, ageBand, sex])
+  @@index([weekStart, virus, fsa])
+  @@index([region, weekStart])
+}
+
+model FsaLookup {
+  fsa    String  @id @db.Char(3)
+  region String
+  phu    String?
+  active Boolean @default(true)
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
