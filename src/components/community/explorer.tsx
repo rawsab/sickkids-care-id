@@ -11,6 +11,7 @@ import { Sparkline } from "@/components/ui/sparkline";
 import type { ActivitySummary, AreaActivity } from "@/lib/activity";
 import { ACTIVITY, ACTIVITY_ORDER } from "@/lib/display";
 import { FSA_GEOJSON_URL, fsaAt, type FsaCollection } from "@/lib/geo";
+import type { ActivityLevel, Trend } from "@/lib/metrics";
 import { defaultRegionForFsa, normaliseFsa } from "@/lib/regions";
 import { COMMUNITY_VIRUSES, VIRUS_BY_KEY, type CommunityVirus } from "@/lib/viruses";
 
@@ -361,6 +362,15 @@ function AreaSummary({
   );
 }
 
+type SortKey = "area" | "region" | "activity";
+type AreaRow = { fsa: string; region: string; level: ActivityLevel; trend: Trend | null };
+
+const SORT_COLUMNS: { key: SortKey; label: string }[] = [
+  { key: "area", label: "Area" },
+  { key: "region", label: "Region" },
+  { key: "activity", label: "Activity" },
+];
+
 function AreaList({
   activity,
   virus,
@@ -374,9 +384,27 @@ function AreaList({
   onSelect: (fsa: string) => void;
   panelOffset: boolean;
 }) {
-  const rows = Object.entries(activity.byFsa)
-    .map(([fsa, a]) => ({ fsa, level: a[virus]?.level ?? "insufficient", trend: a[virus]?.trend ?? null }))
-    .sort((x, y) => ACTIVITY_ORDER.indexOf(x.level) - ACTIVITY_ORDER.indexOf(y.level) || x.fsa.localeCompare(y.fsa));
+  const [sort, setSort] = useState<{ key: SortKey; dir: "ascending" | "descending" }>({ key: "activity", dir: "descending" });
+
+  const rows = useMemo(() => {
+    // "Descending" activity means highest first; ties fall back to FSA order.
+    const compare: Record<SortKey, (x: AreaRow, y: AreaRow) => number> = {
+      area: (x, y) => x.fsa.localeCompare(y.fsa),
+      region: (x, y) => x.region.localeCompare(y.region),
+      activity: (x, y) => ACTIVITY_ORDER.indexOf(y.level) - ACTIVITY_ORDER.indexOf(x.level),
+    };
+    const sign = sort.dir === "ascending" ? 1 : -1;
+    return Object.entries(activity.byFsa)
+      .map(([fsa, a]) => ({ fsa, region: regionOf(fsa), level: a[virus]?.level ?? "insufficient", trend: a[virus]?.trend ?? null }))
+      .sort((x, y) => sign * compare[sort.key](x, y) || x.fsa.localeCompare(y.fsa));
+  }, [activity, virus, regionOf, sort]);
+
+  const toggle = (key: SortKey) =>
+    setSort((s) =>
+      s.key === key
+        ? { key, dir: s.dir === "ascending" ? "descending" : "ascending" }
+        : { key, dir: key === "activity" ? "descending" : "ascending" },
+    );
 
   return (
     <div className="size-full overflow-y-auto bg-canvas pb-48 lg:pb-0" style={panelOffset ? { paddingLeft: PANEL_WIDTH + 32 } : undefined}>
@@ -385,9 +413,23 @@ function AreaList({
         <table className="w-full overflow-hidden rounded-xl bg-surface text-left text-sm shadow-card ring-1 ring-border">
           <thead className="bg-surface-muted text-text-muted">
             <tr>
-              <th scope="col" className="px-4 py-2.5 font-semibold">Area</th>
-              <th scope="col" className="px-4 py-2.5 font-semibold">Region</th>
-              <th scope="col" className="px-4 py-2.5 font-semibold">Activity</th>
+              {SORT_COLUMNS.map((c) => {
+                const active = sort.key === c.key;
+                return (
+                  <th key={c.key} scope="col" aria-sort={active ? sort.dir : "none"} className="px-2 py-1.5 font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => toggle(c.key)}
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-1 hover:bg-surface hover:text-text ${active ? "text-text" : ""}`}
+                    >
+                      {c.label}
+                      <span aria-hidden className={`text-xs ${active ? "" : "opacity-40"}`}>
+                        {active ? (sort.dir === "ascending" ? "↑" : "↓") : "↕"}
+                      </span>
+                    </button>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -398,7 +440,7 @@ function AreaList({
                     {r.fsa}
                   </button>
                 </th>
-                <td className="px-4 py-2.5 text-text-muted">{regionOf(r.fsa)}</td>
+                <td className="px-4 py-2.5 text-text-muted">{r.region}</td>
                 <td className="px-4 py-2.5">
                   <ActivityBadge level={r.level} trend={r.trend} size="sm" />
                 </td>
