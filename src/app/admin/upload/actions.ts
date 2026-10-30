@@ -5,6 +5,7 @@ import { ingestCsv, type IngestResult } from "@/lib/ingest";
 import type { RowError } from "@/lib/ingest/validate";
 import { sumCounts, type Counts } from "@/lib/metrics";
 import { defaultRegionForFsa } from "@/lib/regions";
+import { loadRegionLookup, saveUpload } from "@/lib/uploads";
 import { VIRUSES, type VirusKey } from "@/lib/viruses";
 
 export interface UploadSummary {
@@ -31,12 +32,6 @@ export type UploadState =
   | { status: "saved"; summary: UploadSummary; uploadId: string };
 
 const MAX_LISTED_ERRORS = 200;
-const INSERT_CHUNK = 5_000;
-
-async function loadRegionLookup(): Promise<Map<string, string> | null> {
-  const rows = await db.fsaLookup.findMany({ where: { active: true } });
-  return rows.length ? new Map(rows.map((r) => [r.fsa, r.region])) : null;
-}
 
 function summarise(fileName: string, result: IngestResult, duplicateOf: string | null, warning: string | null): UploadSummary {
   return {
@@ -87,36 +82,7 @@ export async function uploadAction(_prev: UploadState, formData: FormData): Prom
   if (duplicateOf) return { status: "error", message: "This file has already been uploaded." };
   if (result.acceptedCount === 0) return { status: "error", message: "No valid rows to save." };
 
-  const upload = await db.$transaction(async (tx) => {
-    const created = await tx.upload.create({
-      data: {
-        fileName: file.name,
-        fileSha256: result.fileSha256,
-        rowCount: result.rowCount,
-        acceptedCount: result.acceptedCount,
-        rejectedCount: result.errors.length,
-        minDate: result.minDate ? new Date(result.minDate) : null,
-        maxDate: result.maxDate ? new Date(result.maxDate) : null,
-      },
-    });
-    // Chunked to stay under Postgres's limit on bind parameters per statement.
-    for (let i = 0; i < result.aggregates.length; i += INSERT_CHUNK) {
-      await tx.weeklyAggregate.createMany({
-        data: result.aggregates
-          .slice(i, i + INSERT_CHUNK)
-          .map((a) => ({ ...a, uploadId: created.id, weekStart: new Date(a.weekStart) })),
-      });
-    }
-    // Register FSAs seen for the first time so admins can review their region.
-    await tx.fsaLookup.createMany({
-      data: [...new Set(result.aggregates.map((a) => a.fsa))].map((fsa) => ({
-        fsa,
-        region: defaultRegionForFsa(fsa) ?? "Unassigned",
-      })),
-      skipDuplicates: true,
-    });
-    return created;
-  }, { timeout: 60_000 });
+  const upload = await saveUpload(file.name, result);
 
   return { status: "saved", summary, uploadId: upload.id };
 }
