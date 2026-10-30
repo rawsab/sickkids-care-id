@@ -28,7 +28,9 @@ export interface IngestOptions extends ValidateOptions {
  * (row number and reason, never the row's values).
  */
 export function ingestCsv(text: string, options: IngestOptions = {}): IngestResult {
-  const fileSha256 = createHash("sha256").update(text).digest("hex");
+  // Browsers drop a leading BOM when reading a File; strip it here too so the
+  // same file hashes the same whether uploaded or loaded by script.
+  const fileSha256 = createHash("sha256").update(text.replace(/^\uFEFF/, "")).digest("hex");
   const { headers, rows } = parseCsv(text);
   const missingHeaders = validateHeaders(headers);
   if (missingHeaders.length > 0) {

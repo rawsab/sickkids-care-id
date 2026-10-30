@@ -90,4 +90,9 @@ describe("validation", () => {
   it("gives the same hash for the same file", () => {
     expect(ingestCsv(example, { today }).fileSha256).toBe(ingestCsv(example, { today }).fileSha256);
   });
+
+  it("hashes a file the same with or without a BOM", () => {
+    const bare = example.replace(/^\uFEFF/, "");
+    expect(ingestCsv(`\uFEFF${bare}`, { today }).fileSha256).toBe(ingestCsv(bare, { today }).fileSha256);
+  });
 });
