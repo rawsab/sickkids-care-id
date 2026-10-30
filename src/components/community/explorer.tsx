@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityLegend } from "@/components/map/legend";
 import { ActivityBadge } from "@/components/ui/activity-badge";
 import { Button, inputClass, Skeleton } from "@/components/ui/primitives";
@@ -64,6 +64,18 @@ export function CommunityExplorer({
   const [geojson, setGeojson] = useState<FsaCollection | null>(null);
   const [locating, setLocating] = useState(false);
   const desktop = useIsDesktop();
+
+  // On mobile the panel is a bottom sheet; track its height so the map can
+  // frame areas and place its controls above it rather than underneath.
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const [sheetHeight, setSheetHeight] = useState(0);
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => setSheetHeight(el.offsetHeight));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     fetch(FSA_GEOJSON_URL)
@@ -149,9 +161,12 @@ export function CommunityExplorer({
 
   const padding = desktop
     ? { top: 48, right: 48, bottom: 48, left: PANEL_WIDTH + 56 }
-    : { top: 72, right: 24, bottom: 200, left: 24 };
+    : { top: 72, right: 24, bottom: sheetHeight + 24, left: 24 };
+  // The sheet sits 8px above the bottom edge (bottom-2).
+  const controlsInset = desktop ? 0 : sheetHeight + 8;
 
   const selectedArea = selected ? activity.byFsa[selected] : undefined;
+  const shownArea = selected ? selectedArea : activity.overall;
   const virusSegments = COMMUNITY_VIRUSES.map((v) => ({ value: v, label: VIRUS_BY_KEY[v].shortLabel, color: VIRUS_BY_KEY[v].color }));
 
   return (
@@ -166,6 +181,7 @@ export function CommunityExplorer({
               selected={selected}
               onSelect={select}
               padding={padding}
+              controlsInset={controlsInset}
               label={`Map of ${VIRUS_BY_KEY[virus].label} activity by FSA. Use the search box or list view for the same information.`}
               renderTooltip={(fsa) => {
                 const a = activity.byFsa[fsa]?.[virus];
@@ -206,17 +222,21 @@ export function CommunityExplorer({
 
       {/* Floating panel (desktop) / bottom sheet (mobile). */}
       <div
-        className="absolute inset-x-2 bottom-2 z-20 flex max-h-[78%] flex-col rounded-[var(--radius-card)] bg-surface shadow-overlay ring-1 ring-border lg:inset-x-auto lg:bottom-4 lg:left-4 lg:top-4 lg:max-h-none"
+        ref={sheetRef}
+        className="absolute inset-x-2 bottom-2 z-20 flex max-h-[calc(100%-13rem)] flex-col rounded-[var(--radius-card)] bg-surface shadow-overlay ring-1 ring-border lg:inset-x-auto lg:bottom-4 lg:left-4 lg:top-4 lg:max-h-none"
         style={desktop ? { width: PANEL_WIDTH } : undefined}
       >
         <button
           type="button"
-          className="mx-auto mt-2 h-1.5 w-10 shrink-0 rounded-full bg-border-strong lg:hidden"
-          aria-label={expanded ? "Collapse panel" : "Expand panel"}
+          className="flex h-11 w-full shrink-0 items-center justify-center rounded-t-[var(--radius-card)] lg:hidden"
+          aria-label={expanded ? "Hide area details" : "Show area details"}
           aria-expanded={expanded}
+          aria-controls="area-details"
           onClick={() => setExpanded((e) => !e)}
-        />
-        <div className="overflow-y-auto overscroll-contain p-4 sm:p-5">
+        >
+          <span aria-hidden className="h-1.5 w-10 rounded-full bg-border-strong" />
+        </button>
+        <div className="overflow-y-auto overscroll-contain px-4 pb-4 sm:px-5 sm:pb-5 lg:pt-5">
           <h1 className="text-xl font-bold tracking-tight text-text">Respiratory virus activity near you</h1>
           <p className="mt-1 hidden text-sm text-text-muted sm:block lg:block">
             From school testing programs across the GTA, updated weekly.
@@ -248,20 +268,22 @@ export function CommunityExplorer({
             </p>
           )}
 
-          {!expanded && selected && (
+          <SegmentedControl label="Virus shown on the map" segments={virusSegments} value={virus} onChange={changeVirus} className="mt-4 lg:mt-5" />
+
+          {!expanded && (
             <button
               type="button"
               onClick={() => setExpanded(true)}
-              className="mt-3 flex w-full items-center justify-between gap-2 rounded-lg bg-surface-muted px-3 py-2 text-left text-sm lg:hidden"
+              aria-expanded={false}
+              aria-controls="area-details"
+              className="mt-3 flex min-h-11 w-full items-center justify-between gap-2 rounded-lg bg-surface-muted px-3 py-2 text-left text-sm lg:hidden"
             >
-              <span className="font-semibold">{selected}</span>
-              <ActivityBadge level={selectedArea?.[virus]?.level ?? "insufficient"} trend={selectedArea?.[virus]?.trend} size="sm" />
+              <span className="font-semibold">{selected ?? "All areas"}</span>
+              <ActivityBadge level={shownArea?.[virus]?.level ?? "insufficient"} trend={shownArea?.[virus]?.trend} size="sm" />
             </button>
           )}
 
-          <div className={`${expanded ? "" : "hidden"} lg:block`}>
-            <SegmentedControl label="Virus shown on the map" segments={virusSegments} value={virus} onChange={changeVirus} className="mt-5" />
-
+          <div id="area-details" className={`${expanded ? "" : "hidden"} lg:block`}>
             <div className="mt-5">
               {selected ? (
                 <AreaSummary

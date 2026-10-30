@@ -49,6 +49,7 @@ export function FsaMap({
   padding,
   label,
   cooperative = false,
+  controlsInset = 0,
 }: {
   geojson: FsaCollection;
   fillColors: Record<string, string>;
@@ -59,6 +60,8 @@ export function FsaMap({
   label: string;
   /** For maps embedded in a scrolling page: require Ctrl/⌘ + scroll (or two fingers) to zoom. */
   cooperative?: boolean;
+  /** Lifts the zoom buttons and attribution above anything covering the bottom of the map (px). */
+  controlsInset?: number;
 }) {
   const mapRef = useRef<MapRef>(null);
   const [beforeId, setBeforeId] = useState<string | undefined>();
@@ -109,7 +112,12 @@ export function FsaMap({
   const fsaFromEvent = (e: MapLayerMouseEvent) => e.features?.[0]?.properties?.CFSAUID as string | undefined;
 
   return (
-    <div className="relative size-full" role="region" aria-label={label}>
+    <div
+      className="fsa-map relative size-full"
+      role="region"
+      aria-label={label}
+      style={{ "--controls-inset": `${controlsInset}px` } as React.CSSProperties}
+    >
       <Map
         ref={mapRef}
         mapStyle={BASEMAP_STYLE}
