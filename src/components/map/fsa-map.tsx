@@ -4,6 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { setWorkerUrl, type ExpressionSpecification } from "maplibre-gl";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Map, { Layer, NavigationControl, Source, type MapLayerMouseEvent, type MapRef } from "react-map-gl/maplibre";
+import { useI18n } from "@/i18n/client";
 import { bboxOf, type FsaCollection } from "@/lib/geo";
 
 const BASEMAP_STYLE =
@@ -63,6 +64,7 @@ export function FsaMap({
   /** Lifts the zoom buttons and attribution above anything covering the bottom of the map (px). */
   controlsInset?: number;
 }) {
+  const { dict } = useI18n();
   const mapRef = useRef<MapRef>(null);
   const [beforeId, setBeforeId] = useState<string | undefined>();
   const [ready, setReady] = useState(false);
@@ -126,6 +128,7 @@ export function FsaMap({
         maxZoom={14}
         dragRotate={false}
         cooperativeGestures={cooperative}
+        locale={dict.mapControls}
         pitchWithRotate={false}
         touchPitch={false}
         interactiveLayerIds={["fsa-fill"]}
@@ -148,7 +151,7 @@ export function FsaMap({
           const fsa = fsaFromEvent(e);
           if (fsa) onSelect(fsa);
         }}
-        attributionControl={{ compact: true, customAttribution: "Boundaries: Statistics Canada" }}
+        attributionControl={{ compact: true, customAttribution: dict.mapControls.boundaries }}
       >
         <NavigationControl position="bottom-right" showCompass={false} />
         {ready && (

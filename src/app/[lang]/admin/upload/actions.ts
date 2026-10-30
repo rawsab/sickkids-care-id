@@ -22,18 +22,22 @@ export interface UploadSummary {
   fsaCount: number;
   totals: ({ virus: VirusKey } & Counts)[];
   duplicateOf: string | null;
-  warning: string | null;
+  /** Set when the preview couldn't reach the database. */
+  warning: "dbUnavailablePreview" | null;
 }
+
+/** Keys into the upload.errors dictionary; the form turns them into words. */
+export type UploadErrorCode = "noFile" | "dbUnavailable" | "duplicate" | "noValidRows";
 
 export type UploadState =
   | { status: "idle" }
-  | { status: "error"; message: string }
+  | { status: "error"; code: UploadErrorCode }
   | { status: "preview"; summary: UploadSummary }
   | { status: "saved"; summary: UploadSummary; uploadId: string };
 
 const MAX_LISTED_ERRORS = 200;
 
-function summarise(fileName: string, result: IngestResult, duplicateOf: string | null, warning: string | null): UploadSummary {
+function summarise(fileName: string, result: IngestResult, duplicateOf: string | null, warning: UploadSummary["warning"]): UploadSummary {
   return {
     fileName,
     rowCount: result.rowCount,
@@ -55,15 +59,15 @@ function summarise(fileName: string, result: IngestResult, duplicateOf: string |
 export async function uploadAction(_prev: UploadState, formData: FormData): Promise<UploadState> {
   const file = formData.get("file");
   const intent = formData.get("intent");
-  if (!(file instanceof File) || file.size === 0) return { status: "error", message: "Choose a CSV file to upload." };
+  if (!(file instanceof File) || file.size === 0) return { status: "error", code: "noFile" };
 
   let lookup: Map<string, string> | null = null;
-  let warning: string | null = null;
+  let warning: UploadSummary["warning"] = null;
   try {
     lookup = await loadRegionLookup();
   } catch {
-    if (intent === "commit") return { status: "error", message: "The database is unavailable, so the upload was not saved." };
-    warning = "The database is unavailable. This preview uses the default FSA → region mapping and can't check for duplicates.";
+    if (intent === "commit") return { status: "error", code: "dbUnavailable" };
+    warning = "dbUnavailablePreview";
   }
 
   const result = ingestCsv(await file.text(), {
@@ -79,8 +83,8 @@ export async function uploadAction(_prev: UploadState, formData: FormData): Prom
   const summary = summarise(file.name, result, duplicateOf, warning);
   if (intent !== "commit") return { status: "preview", summary };
 
-  if (duplicateOf) return { status: "error", message: "This file has already been uploaded." };
-  if (result.acceptedCount === 0) return { status: "error", message: "No valid rows to save." };
+  if (duplicateOf) return { status: "error", code: "duplicate" };
+  if (result.acceptedCount === 0) return { status: "error", code: "noValidRows" };
 
   const upload = await saveUpload(file.name, result);
 

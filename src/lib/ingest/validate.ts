@@ -32,10 +32,30 @@ export interface ValidRecord {
   results: Partial<Record<SourceVirus, TestResult>>;
 }
 
+/** Why a row was rejected; the interface turns codes into words (upload.issues). */
+export type IssueCode =
+  | "required"
+  | "wholeNumber"
+  | "maxAge"
+  | "dateFormat"
+  | "futureDate"
+  | "fsaFormat"
+  | "unknownFsa"
+  | "resultValue"
+  | "noResults";
+
+export interface RowIssue {
+  /** CSV column the problem is in; absent for whole-row problems. */
+  column?: string;
+  code: IssueCode;
+}
+
 export interface RowError {
   rowNumber: number;
-  messages: string[];
+  issues: RowIssue[];
 }
+
+const issue = (code: IssueCode) => ({ message: code });
 
 export interface ValidateOptions {
   /** Dates after this are rejected. Defaults to now. */
@@ -56,7 +76,7 @@ const SEX_VALUES: Record<string, Sex> = { female: "FEMALE", male: "MALE", f: "FE
 const resultSchema = z
   .string()
   .transform((v) => v.toLowerCase())
-  .refine((v) => v === "" || v in RESULT_VALUES, { message: "must be Detected, Not detected, Indeterminate or blank" })
+  .refine((v) => v === "" || v in RESULT_VALUES, issue("resultValue"))
   .transform((v) => (v === "" ? undefined : RESULT_VALUES[v]));
 
 export function validateHeaders(headers: readonly string[]): string[] {
@@ -73,23 +93,23 @@ export function validateRows(
       .transform((v) => (v === "" ? "UNKNOWN" : (SEX_VALUES[v.toLowerCase()] ?? "OTHER"))),
     [COLUMNS.age]: z
       .string()
-      .min(1, { message: "is required", abort: true })
-      .regex(/^\d+$/, "must be a whole number")
+      .min(1, { ...issue("required"), abort: true })
+      .regex(/^\d+$/, issue("wholeNumber"))
       .transform(Number)
-      .pipe(z.number().max(19, "must be 19 or under")),
+      .pipe(z.number().max(19, issue("maxAge"))),
     [COLUMNS.collectedOn]: z
       .string()
       .transform((v, ctx) => {
         const d = parseIsoDate(v);
-        if (!d) ctx.addIssue({ code: "custom", message: "must be a date in YYYY-MM-DD format" });
-        else if (d > today) ctx.addIssue({ code: "custom", message: "is in the future" });
+        if (!d) ctx.addIssue({ code: "custom", ...issue("dateFormat") });
+        else if (d > today) ctx.addIssue({ code: "custom", ...issue("futureDate") });
         return d ?? z.NEVER;
       }),
     [COLUMNS.fsa]: z
       .string()
       .transform((v) => v.toUpperCase())
-      .refine((v) => FSA_PATTERN.test(v), "must be a 3-character FSA such as M5G")
-      .refine((v) => (knownFsas ? knownFsas.has(v) : defaultRegionForFsa(v) !== null), "is not a known Ontario FSA"),
+      .refine((v) => FSA_PATTERN.test(v), issue("fsaFormat"))
+      .refine((v) => (knownFsas ? knownFsas.has(v) : defaultRegionForFsa(v) !== null), issue("unknownFsa")),
     ...Object.fromEntries(Object.values(COLUMNS.results).map((col) => [col, resultSchema])),
   });
 
@@ -102,7 +122,7 @@ export function validateRows(
     if (!parsed.success) {
       errors.push({
         rowNumber,
-        messages: parsed.error.issues.map((issue) => `${String(issue.path[0])} ${issue.message}`),
+        issues: parsed.error.issues.map((i) => ({ column: String(i.path[0]), code: i.message as IssueCode })),
       });
       return;
     }
@@ -113,7 +133,7 @@ export function validateRows(
       if (r) results[virus] = r;
     }
     if (Object.keys(results).length === 0) {
-      errors.push({ rowNumber, messages: ["has no test results"] });
+      errors.push({ rowNumber, issues: [{ code: "noResults" }] });
       return;
     }
     valid.push({

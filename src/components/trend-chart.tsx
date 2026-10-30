@@ -1,6 +1,9 @@
 "use client";
 
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useI18n } from "@/i18n/client";
+import { INTL_LOCALE, type Locale } from "@/i18n/config";
+import { formatPct, t } from "@/i18n/format";
 
 export interface TrendLine {
   key: string;
@@ -10,8 +13,8 @@ export interface TrendLine {
   values: (number | null)[];
 }
 
-const shortDate = (iso: string) =>
-  new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-CA", { month: "short", day: "numeric", timeZone: "UTC" });
+const shortDate = (iso: string, locale: Locale) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString(INTL_LOCALE[locale], { month: "short", day: "numeric", timeZone: "UTC" });
 
 const INK_MUTED = "#626e7c"; // --text-subtle; Recharts needs a literal
 const GRID = "#e9edf2";
@@ -39,6 +42,7 @@ function endLabelOffsets(lines: TrendLine[], yMax: number, plotHeight: number): 
  * (identity never relies on colour alone); suppressed weeks are gaps.
  */
 export function TrendChart({ weeks, lines, height = 340 }: { weeks: string[]; lines: TrendLine[]; height?: number }) {
+  const { locale, dict } = useI18n();
   const data = weeks.map((week, i) => ({ week, ...Object.fromEntries(lines.map((l) => [l.key, l.values[i]])) }));
   const max = Math.max(0, ...lines.flatMap((l) => l.values.filter((v): v is number => v !== null)));
   const step = max > 40 ? 20 : max > 20 ? 10 : 5;
@@ -65,14 +69,14 @@ export function TrendChart({ weeks, lines, height = 340 }: { weeks: string[]; li
           <XAxis
             dataKey="week"
             height={X_AXIS_HEIGHT}
-            tickFormatter={shortDate}
+            tickFormatter={(w: string) => shortDate(w, locale)}
             tick={{ fontSize: 12, fill: INK_MUTED }}
             tickLine={false}
             axisLine={{ stroke: "#c9d1dc" }}
             minTickGap={28}
           />
           <YAxis
-            tickFormatter={(v: number) => `${v}%`}
+            tickFormatter={(v: number) => formatPct(locale, v).replace(/[.,]0(?=\s?%)/, "")}
             tick={{ fontSize: 12, fill: INK_MUTED }}
             tickLine={false}
             axisLine={false}
@@ -85,8 +89,8 @@ export function TrendChart({ weeks, lines, height = 340 }: { weeks: string[]; li
             contentStyle={{ borderRadius: 12, border: "1px solid #e2e7ee", boxShadow: "0 8px 24px -8px rgb(15 27 45 / 0.2)", fontSize: 13 }}
             labelStyle={{ fontWeight: 600, color: "#0f1b2d", marginBottom: 4 }}
             itemStyle={{ color: "#0f1b2d", padding: 0 }}
-            labelFormatter={(w) => `Week of ${shortDate(String(w))}`}
-            formatter={(v) => (typeof v === "number" ? `${v.toFixed(1)}%` : "Too few tests")}
+            labelFormatter={(w) => t(dict.dashboard.chart.weekOf, { date: shortDate(String(w), locale) })}
+            formatter={(v) => (typeof v === "number" ? formatPct(locale, v) : dict.common.tooFewTests)}
           />
           {lines.map((l) => {
             const last = l.values.findLastIndex((v) => v !== null);

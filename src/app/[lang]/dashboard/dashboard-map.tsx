@@ -7,7 +7,8 @@ import { PositivityLegend } from "@/components/map/legend";
 import { Skeleton } from "@/components/ui/primitives";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { positivityColor } from "@/lib/display";
-import { pct } from "@/lib/format";
+import { useI18n } from "@/i18n/client";
+import { formatNumber, formatPct, t } from "@/i18n/format";
 import { FSA_GEOJSON_URL, type FsaCollection } from "@/lib/geo";
 import type { PublishedCell } from "@/lib/privacy";
 import { VIRUS_BY_KEY, type VirusKey } from "@/lib/viruses";
@@ -33,6 +34,9 @@ export function DashboardMap({
   regions: Record<string, string>;
   periodLabel: string;
 }) {
+  const { locale, dict } = useI18n();
+  const m = dict.dashboard.map;
+  const virusName = dict.common.viruses[mapVirus].label;
   const router = useRouter();
   const pathname = usePathname();
   const [geojson, setGeojson] = useState<FsaCollection | null>(null);
@@ -63,12 +67,12 @@ export function DashboardMap({
     <div>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-text-muted">
-          {VIRUS_BY_KEY[mapVirus].label} positivity by FSA · {periodLabel}. Click an area to see its trend.
+          {t(m.caption, { virus: virusName, period: periodLabel })}
         </p>
         {filters.viruses.length > 1 && (
           <SegmentedControl
-            label="Virus shown on the map"
-            segments={filters.viruses.map((v) => ({ value: v, label: VIRUS_BY_KEY[v].shortLabel, color: VIRUS_BY_KEY[v].color }))}
+            label={dict.home.virusControl}
+            segments={filters.viruses.map((v) => ({ value: v, label: dict.common.viruses[v].short, color: VIRUS_BY_KEY[v].color }))}
             value={mapVirus}
             onChange={(v) => go({}, { tab: "map", mapVirus: v })}
           />
@@ -83,16 +87,16 @@ export function DashboardMap({
             onSelect={(fsa) => go({ area: `fsa:${fsa}`, fsa, region: undefined }, {})}
             padding={PADDING}
             cooperative
-            label={`Map of ${VIRUS_BY_KEY[mapVirus].label} percent positivity by FSA`}
+            label={t(m.label, { virus: virusName })}
             renderTooltip={(fsa) => {
               const c = cells[fsa];
               return (
                 <>
                   <p className="font-semibold">
-                    {fsa} <span className="font-normal text-text-muted">· {regions[fsa] ?? "No results"}</span>
+                    {fsa} <span className="font-normal text-text-muted">· {regions[fsa] ? (dict.common.regions[regions[fsa]] ?? regions[fsa]) : m.noRegion}</span>
                   </p>
                   <p className="tabular mt-0.5 text-text-muted">
-                    {!c || c.suppressed ? "Too few tests to report" : `${pct(c.positivity)} positive · ${c.tested} tests`}
+                    {!c || c.suppressed ? m.tooFew : t(m.tooltip, { pct: formatPct(locale, c.positivity), tests: formatNumber(locale, c.tested) })}
                   </p>
                 </>
               );
@@ -101,7 +105,7 @@ export function DashboardMap({
         ) : failed ? (
           <div role="alert" className="grid size-full place-items-center bg-surface-muted p-6 text-center">
             <p className="max-w-sm text-sm text-text-muted">
-              The map couldn&apos;t be loaded. Reload the page to try again. The Trends and Data table tabs still work.
+              {m.failed}
             </p>
           </div>
         ) : (
@@ -109,7 +113,7 @@ export function DashboardMap({
         )}
         {!failed && (
           <div className="absolute right-3 top-3 z-10">
-            <PositivityLegend title="Percent positive" />
+            <PositivityLegend title={m.legendTitle} />
           </div>
         )}
       </div>

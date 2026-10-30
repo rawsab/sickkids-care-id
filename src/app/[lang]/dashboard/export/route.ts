@@ -1,10 +1,15 @@
 import Papa from "papaparse";
+import { isLocale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/dictionaries";
 import { getDataRange, getWeeklySeries } from "@/lib/queries";
-import { VIRUS_BY_KEY } from "@/lib/viruses";
 import { areaLabel, parseFilters } from "../filters";
 
 // TODO(auth): require a PH_USER or ADMIN session (currently gated by src/proxy.ts).
-export async function GET(request: Request) {
+// Column names and coded values (sex, notes) are a stable data contract and stay in
+// English; virus and area names follow the page language.
+export async function GET(request: Request, { params }: RouteContext<"/[lang]/dashboard/export">) {
+  const { lang } = await params;
+  const dict = await getDictionary(isLocale(lang) ? lang : "en");
   const url = new URL(request.url);
   const sp: Record<string, string[]> = {};
   url.searchParams.forEach((value, key) => (sp[key] ??= []).push(value));
@@ -19,8 +24,8 @@ export async function GET(request: Request) {
         const c = series[v][i];
         rows.push({
           week_start: week,
-          virus: VIRUS_BY_KEY[v].label,
-          area: areaLabel(filters),
+          virus: dict.common.viruses[v].label,
+          area: areaLabel(filters, dict),
           age_group: filters.ageBand ?? "All",
           sex: filters.sex ?? "All",
           rolling_3_week: filters.rolling ? "yes" : "no",
