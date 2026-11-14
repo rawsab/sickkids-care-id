@@ -26,7 +26,7 @@ export async function GET(request: Request, { params }: RouteContext<"/[lang]/da
           week_start: week,
           virus: dict.common.viruses[v].label,
           area: areaLabel(filters, dict),
-          age_group: filters.ageBand ?? "All",
+          age_group: filters.age ? `${filters.age.min}–${filters.age.max}` : "All",
           sex: filters.sex ?? "All",
           rolling_3_week: filters.rolling ? "yes" : "no",
           tests: c.suppressed ? "" : c.tested,

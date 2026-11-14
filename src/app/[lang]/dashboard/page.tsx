@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
+import { TestCountChart } from "@/components/test-count-chart";
 import { TrendChart } from "@/components/trend-chart";
 import { Icon } from "@/components/ui/icons";
 import { ButtonLink, Card, EmptyState } from "@/components/ui/primitives";
@@ -11,7 +12,8 @@ import { formatNumber, formatPct, plural, t } from "@/i18n/format";
 import { getI18n } from "@/i18n/server";
 import { shortWeek, weekLabel } from "@/lib/format";
 import { PRIVACY_RULES, type PublishedCell } from "@/lib/privacy";
-import { getAgeBands, getAreas, getDataRange, getFsaPositivity, getLastUploadAt, getWeeklySeries } from "@/lib/queries";
+import { getAgeBands, getAreas, getDataRange, getFsaPositivity, getLastCollectedDate, getLastUploadAt, getWeeklySeries } from "@/lib/queries";
+import { partialThrough, testCounts } from "@/lib/test-counts";
 import { VIRUS_BY_KEY, type VirusKey } from "@/lib/viruses";
 import { DashboardMap } from "./dashboard-map";
 import { FilterBar } from "./filter-bar";
@@ -54,13 +56,17 @@ export default async function Dashboard({
     );
   }
 
-  const [{ weeks, series }, areas, ageBands, lastUpload, mapCells] = await Promise.all([
+  const [{ weeks, series }, areas, ageBands, lastUpload, mapCells, weekly, lastCollected] = await Promise.all([
     getWeeklySeries(filters, "ph", range),
     getAreas(),
     getAgeBands(),
     getLastUploadAt(),
     tab === "map" ? getFsaPositivity(filters, mapVirus, range) : Promise.resolve(null),
+    // Test counts are always weekly: with the 3-week average on, fetch the unpooled series too.
+    tab === "trends" && filters.rolling ? getWeeklySeries({ ...filters, rolling: false }, "ph", range) : Promise.resolve(null),
+    tab === "trends" ? getLastCollectedDate() : Promise.resolve(null),
   ]);
+  const weeklySeries = (weekly ?? { series }).series;
   const regions = Object.fromEntries(areas.fsas.map((f) => [f.fsa, f.region]));
   const tabHref = (id: TabId) => {
     const q = new URLSearchParams(filtersToQuery(filters));
@@ -118,7 +124,7 @@ export default async function Dashboard({
                 scroll={false}
                 aria-current={id === tab ? "page" : undefined}
                 className={`-mb-px border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors ${
-                  id === tab ? "border-brand-blue text-brand-navy" : "border-transparent text-text-muted hover:text-text"
+                  id === tab ? "border-brand-royal text-brand-blueberry" : "border-transparent text-text-muted hover:text-text"
                 }`}
               >
                 {d.tabs[id]}
@@ -143,6 +149,29 @@ export default async function Dashboard({
                   {filters.rolling ? d.rollingNote : ""}
                   {t(d.gapsNote, { minTests: PRIVACY_RULES.ph.minTests })}
                 </p>
+
+                <section aria-labelledby="tests-heading" className="mt-8 border-t border-border pt-6">
+                  <h2 id="tests-heading" className="font-semibold text-text">
+                    {d.testChart.title}
+                  </h2>
+                  <p className="mt-1 max-w-3xl text-sm text-text-muted">
+                    {d.testChart.lead}
+                    {filters.rolling && <span className="font-medium text-text"> {d.testChart.notRolling}</span>}
+                  </p>
+                  <div className="mt-4">
+                    <TestCountChart
+                      weeks={weeks}
+                      series={filters.viruses.map((v) => ({
+                        key: v,
+                        label: dict.common.viruses[v].label,
+                        color: VIRUS_BY_KEY[v].color,
+                        values: testCounts(weeklySeries[v]),
+                      }))}
+                      partialThrough={partialThrough(range.latest, lastCollected)}
+                      minTests={PRIVACY_RULES.ph.minTests}
+                    />
+                  </div>
+                </section>
               </>
             )}
 

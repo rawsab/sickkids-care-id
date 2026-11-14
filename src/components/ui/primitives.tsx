@@ -7,9 +7,9 @@ type Variant = "primary" | "secondary" | "ghost";
 const BUTTON_BASE =
   "inline-flex items-center justify-center gap-2 rounded-[var(--radius-control)] px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50";
 const BUTTON_VARIANTS: Record<Variant, string> = {
-  primary: "bg-brand-blue text-white hover:bg-brand-blue-dark shadow-card",
+  primary: "bg-brand-royal text-white hover:bg-brand-royal-dark shadow-card",
   secondary: "bg-surface text-text border border-border-strong hover:bg-surface-muted",
-  ghost: "text-brand-blue hover:bg-brand-sky",
+  ghost: "text-brand-royal hover:bg-brand-sky",
 };
 
 export const buttonClass = (variant: Variant = "primary", extra = "") => `${BUTTON_BASE} ${BUTTON_VARIANTS[variant]} ${extra}`;
@@ -30,7 +30,7 @@ export function SectionTitle({ eyebrow, title, action }: { eyebrow?: string; tit
   return (
     <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
       <div>
-        {eyebrow && <p className="text-xs font-semibold uppercase tracking-wider text-brand-blue">{eyebrow}</p>}
+        {eyebrow && <p className="text-xs font-semibold uppercase tracking-wider text-brand-royal">{eyebrow}</p>}
         <h2 className="text-lg font-semibold text-text">{title}</h2>
       </div>
       {action}
@@ -45,7 +45,7 @@ export function Skeleton({ className = "" }: { className?: string }) {
 export function EmptyState({ title, children, action }: { title: string; children?: ReactNode; action?: ReactNode }) {
   return (
     <Card className="flex flex-col items-center px-6 py-14 text-center">
-      <div className="mb-4 grid size-12 place-items-center rounded-full bg-brand-sky text-brand-blue">
+      <div className="mb-4 grid size-12 place-items-center rounded-full bg-brand-sky text-brand-royal">
         <Icon name="activity" className="size-6" />
       </div>
       <h2 className="text-lg font-semibold">{title}</h2>
@@ -56,4 +56,4 @@ export function EmptyState({ title, children, action }: { title: string; childre
 }
 
 export const inputClass =
-  "w-full rounded-[var(--radius-control)] border border-border-control bg-surface px-3 py-2.5 text-sm text-text shadow-[inset_0_1px_1px_rgb(15_27_45/0.04)] placeholder:text-text-subtle focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20";
+  "w-full rounded-[var(--radius-control)] border border-border-control bg-surface px-3 py-2.5 text-sm text-text shadow-[inset_0_1px_1px_rgb(0_32_88/0.04)] placeholder:text-text-subtle focus:border-brand-royal focus:outline-none focus:ring-2 focus:ring-brand-royal/20";

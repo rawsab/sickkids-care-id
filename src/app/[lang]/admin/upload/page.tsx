@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
 import { getI18n } from "@/i18n/server";
+import { requireUser } from "@/lib/auth/session";
 import { UploadForm } from "./upload-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -9,7 +10,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function UploadPage() {
-  const { dict } = await getI18n();
+  const { locale, dict } = await getI18n();
+  await requireUser(locale, "/admin/upload");
   return (
     <>
       <PageHeader

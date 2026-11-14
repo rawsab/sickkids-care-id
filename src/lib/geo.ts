@@ -1,4 +1,5 @@
 import booleanPointInPolygon from "@turf/boolean-point-in-polygon";
+import { normaliseFsa } from "./regions";
 import type { Feature, FeatureCollection, MultiPolygon, Polygon } from "geojson";
 
 export const FSA_GEOJSON_URL = "/geo/gta-fsa.geojson";
@@ -26,4 +27,18 @@ export function bboxOf(features: FsaFeature[]): Bbox {
 /** The FSA containing a point — used for "Use my location", entirely in the browser. */
 export function fsaAt(collection: FsaCollection, lng: number, lat: number): string | null {
   return collection.features.find((f) => booleanPointInPolygon([lng, lat], f))?.properties.CFSAUID ?? null;
+}
+
+export type AreaLookup = { fsa: string } | { error: "notPostal" | "outside"; fsa?: string };
+
+/**
+ * The reporting area (FSA) for a postal code or FSA typed by a visitor or read
+ * from a record. Only the first three characters are used. `covered` is the
+ * set of FSAs on the map; pass null while it is still loading to skip the check.
+ */
+export function areaForPostalCode(value: string, covered: ReadonlySet<string> | null): AreaLookup {
+  const fsa = normaliseFsa(value);
+  if (!fsa) return { error: "notPostal" };
+  if (covered && !covered.has(fsa)) return { error: "outside", fsa };
+  return { fsa };
 }

@@ -12,12 +12,13 @@ export async function loadRegionLookup(): Promise<Map<string, string> | null> {
 }
 
 /** Saves an ingested file's weekly aggregates as a new active upload. */
-export async function saveUpload(fileName: string, result: IngestResult) {
+export async function saveUpload(fileName: string, result: IngestResult, uploadedById?: string) {
   return db.$transaction(
     async (tx) => {
       const created = await tx.upload.create({
         data: {
           fileName,
+          uploadedById,
           fileSha256: result.fileSha256,
           rowCount: result.rowCount,
           acceptedCount: result.acceptedCount,

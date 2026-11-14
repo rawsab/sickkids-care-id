@@ -1,6 +1,7 @@
 "use client";
 
 import { useI18n } from "@/i18n/client";
+import { INK } from "@/lib/brand";
 
 /** Tiny inline trend line. Nulls (suppressed weeks) break the line rather than being bridged. */
 export function Sparkline({
@@ -35,7 +36,7 @@ export function Sparkline({
 
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
-      <line x1={pad} x2={width - pad} y1={height - pad} y2={height - pad} stroke="#e2e7ee" />
+      <line x1={pad} x2={width - pad} y1={height - pad} y2={height - pad} stroke={INK.border} />
       <path d={d} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
       <circle cx={x(lastIndex)} cy={y(values[lastIndex]!)} r={3} fill={color} stroke="#fff" strokeWidth={1.5} />
     </svg>

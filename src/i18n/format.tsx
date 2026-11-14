@@ -25,7 +25,7 @@ export function plural(locale: Locale, count: number, forms: Plural, vars: Vars 
 
 /**
  * Renders <tag>…</tag> spans in a message with the matching component, e.g.
- * rich("Read the <link>notes</link>", { link: (s) => <a href="/notes">{s}</a> }).
+ * rich("Read the <link>notes</link>", { link: (s) => <a href="/about">{s}</a> }).
  */
 export function rich(template: string, tags: Record<string, (chunk: ReactNode) => ReactNode>, vars: Vars = {}): ReactNode {
   const parts: ReactNode[] = [];

@@ -35,13 +35,30 @@ enum UploadStatus {
   ROLLED_BACK
 }
 
+// Accounts are created by an administrator (`npm run user:add`), so every user
+// is a verified SickKids member or researcher. No self sign-up.
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  role      Role     @default(PH_USER)
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String?
+  role         Role      @default(PH_USER)
+  /// scrypt hash (see src/lib/auth/password.ts); null means the account can't sign in.
+  passwordHash String?
+  createdAt    DateTime  @default(now())
+  uploads      Upload[]
+  sessions     Session[]
+}
+
+// The cookie holds a random token; only its SHA-256 is stored, so a database
+// leak doesn't hand out live sessions.
+model Session {
+  id        String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
   createdAt DateTime @default(now())
-  uploads   Upload[]
+
+  @@index([userId])
 }
 
 model Upload {

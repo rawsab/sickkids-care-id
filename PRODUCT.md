@@ -30,15 +30,16 @@ The data comes from school-based testing of children, so it gives an early, comm
 - **Data flow:** schools test → staff upload a CSV → it is parsed, validated, de-identified and aggregated in memory → only weekly counts (epi week × FSA × region × virus × age band × sex) are stored.
 - **Geography:** FSAs in the Greater Toronto Area (Statistics Canada 2021 boundaries), grouped into Toronto, Peel, York, Durham and Halton. The basemap is CARTO Positron.
 - **Public view:** shows activity levels (low / moderate / high / not enough data) from pooled 3-week positivity, with a rising or falling trend. It never shows case counts or test counts. A visitor's location, if shared, stays in their browser.
-- **Public health view:** shows detailed positivity and trends, has filters, and exports figures.
-- **Technical notes** (`/notes`) document methods, suppression, activity bands and the upload file format.
+- **Kids view** (`/kids`, Grades 3–5, a prototype shaped by five youth responses, not yet tested with children): a guided page. Choose an area (location, school name, list or postal code), read level cards per virus, see weekly test counts (never positives; weeks under the public threshold hidden), and optionally the map. School search uses the Ministry of Education school list and runs in the browser; a school only selects the area of its postal code.
+- **Public health view:** shows detailed positivity and trends, weekly test counts per virus, has filters, and exports figures.
+- **About** (`/about`, formerly "Technical notes") documents methods, suppression, activity bands and the upload file format.
 
 ## Capabilities and Constraints
 
 - **Viruses:** influenza A, influenza B, influenza (any), SARS-CoV-2 (COVID-19) and RSV.
 - **Privacy rules:** the public view suppresses cells with fewer than 10 definitive tests and the public health view fewer than 5. Where a breakdown adds up to a shown total, a second cell is also suppressed so a hidden value can't be worked out by subtraction. "Not enough data" is a first-class state, not an error.
 - **Provisional numbers:** the activity bands are provisional and will be set with public health partners. Present them as provisional, not final.
-- **Authentication:** none yet. `/admin` and `/dashboard` return 404 in production builds until it is added (`src/proxy.ts`). Role names: `ADMIN`, `PH_USER`.
+- **Authentication:** email and password, with accounts created by an administrator (`npm run user:add`). The map, dashboard and About page are public; uploading and the upload file format need a signed-in account (checked in `src/lib/auth/session.ts`, on the page and in the upload action). Role names `ADMIN` and `PH_USER` are stored but not yet used to gate anything.
 - **Planned:** reporting by individual school (v2, `schoolId`). Undecided.
 - **Language:** English and French, at `/en/…` and `/fr/…`. A visitor's language is chosen from a cookie, then their browser language. All interface text lives in `src/i18n/dictionaries/`. **The French text is a draft by the development team and must be reviewed by a professional translator before any public release.** CSV column names and the literal result values in uploaded files ("Detected", …) stay in English in both languages.
 - **Stack:** Next.js 16 (App Router), React 19, Tailwind 4, Prisma and Postgres, MapLibre, and Recharts.
@@ -61,7 +62,7 @@ The data comes from school-based testing of children, so it gives an early, comm
 1. **Privacy is visible.** Users should see that individual results are never stored and that small numbers are hidden. Suppressed states are explained honestly, never disguised.
 2. **One dataset, two depths.** The public gets activity levels in plain language, and public health gets detailed figures. Neither view should leak the other's level of detail.
 3. **Calm, not alarming.** The product informs parents' decisions without causing panic. Levels and trends come with what to do about them.
-4. **Methods are inspectable.** Every number shown can be traced to a documented method in the technical notes.
+4. **Methods are inspectable.** Every number shown can be traced to a documented method on the About page.
 5. **Honest about being a prototype.** Thresholds, branding and data are marked provisional until partners confirm them.
 
 ## Accessibility & Inclusion

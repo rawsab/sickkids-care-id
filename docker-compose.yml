@@ -7,6 +7,12 @@ services:
       POSTGRES_DB: careid
     ports:
       - "5432:5432"
+    # Lets `docker compose up --wait` return only once Postgres accepts connections.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careid -d careid"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
     volumes:
       - pgdata:/var/lib/postgresql/data
 

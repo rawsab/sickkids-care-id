@@ -16,12 +16,15 @@ export function SegmentedControl<T extends string>({
   value,
   onChange,
   className = "",
+  size = "md",
 }: {
   label: string;
   segments: Segment<T>[];
   value: T;
   onChange: (value: T) => void;
   className?: string;
+  /** "lg": 44px-plus targets and body-size labels, wrapping onto two rows if needed (kids page). */
+  size?: "md" | "lg";
 }) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const move = (index: number) => {
@@ -31,7 +34,11 @@ export function SegmentedControl<T extends string>({
   };
 
   return (
-    <div role="radiogroup" aria-label={label} className={`flex rounded-[var(--radius-control)] bg-surface-muted p-1 ${className}`}>
+    <div
+      role="radiogroup"
+      aria-label={label}
+      className={`flex rounded-[var(--radius-control)] bg-surface-muted p-1 ${size === "lg" ? "flex-wrap gap-1" : ""} ${className}`}
+    >
       {segments.map((s, i) => {
         const active = s.value === value;
         return (
@@ -52,11 +59,13 @@ export function SegmentedControl<T extends string>({
                 move(i + step);
               }
             }}
-            className={`flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-[calc(var(--radius-control)-2px)] px-3 py-1.5 text-sm font-semibold transition ${
+            className={`flex flex-1 items-center justify-center whitespace-nowrap rounded-[calc(var(--radius-control)-2px)] font-semibold transition ${
+              size === "lg" ? "min-h-12 min-w-[7.5rem] gap-2 px-4 text-lg" : "gap-1 px-2 py-1.5 text-sm sm:gap-1.5 sm:px-3"
+            } ${
               active ? "bg-surface text-text shadow-raised" : "text-text-muted hover:text-text"
             }`}
           >
-            {s.color && <span aria-hidden className="size-2 rounded-full" style={{ background: s.color }} />}
+            {s.color && <span aria-hidden className={`${size === "lg" ? "size-3" : "size-2"} rounded-full`} style={{ background: s.color }} />}
             {s.label}
           </button>
         );

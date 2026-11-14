@@ -1,5 +1,6 @@
 "use server";
 
+import { getCurrentUser } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { ingestCsv, type IngestResult } from "@/lib/ingest";
 import type { RowError } from "@/lib/ingest/validate";
@@ -27,7 +28,7 @@ export interface UploadSummary {
 }
 
 /** Keys into the upload.errors dictionary; the form turns them into words. */
-export type UploadErrorCode = "noFile" | "dbUnavailable" | "duplicate" | "noValidRows";
+export type UploadErrorCode = "unauthorized" | "noFile" | "dbUnavailable" | "duplicate" | "noValidRows";
 
 export type UploadState =
   | { status: "idle" }
@@ -55,8 +56,11 @@ function summarise(fileName: string, result: IngestResult, duplicateOf: string |
   };
 }
 
-// TODO(auth): require the ADMIN role and record uploadedById once Auth.js is in.
+// Server actions are reachable without the page, so this checks the session itself.
 export async function uploadAction(_prev: UploadState, formData: FormData): Promise<UploadState> {
+  const user = await getCurrentUser();
+  if (!user) return { status: "error", code: "unauthorized" };
+
   const file = formData.get("file");
   const intent = formData.get("intent");
   if (!(file instanceof File) || file.size === 0) return { status: "error", code: "noFile" };
@@ -86,7 +90,7 @@ export async function uploadAction(_prev: UploadState, formData: FormData): Prom
   if (duplicateOf) return { status: "error", code: "duplicate" };
   if (result.acceptedCount === 0) return { status: "error", code: "noValidRows" };
 
-  const upload = await saveUpload(file.name, result);
+  const upload = await saveUpload(file.name, result, user.id);
 
   return { status: "saved", summary, uploadId: upload.id };
 }

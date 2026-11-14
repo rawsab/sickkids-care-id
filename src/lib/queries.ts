@@ -1,11 +1,12 @@
 import "server-only";
 import type { Prisma } from "@/generated/prisma/client";
-import { ACTIVITY_WINDOW, buildActivity, type ActivitySummary } from "./activity";
+import { ACTIVITY_WINDOW, buildActivity, type ActivityRow, type ActivitySummary } from "./activity";
 import { db } from "./db";
 import { parseIsoDate, toIsoDate } from "./epiweek";
 import type { Sex } from "./ingest/validate";
 import { rollingCounts, type Counts } from "./metrics";
 import { publishCells, type Audience, type PublishedCell } from "./privacy";
+import { buildFsaTestCounts, type FsaTestCounts } from "./test-counts";
 import type { VirusKey } from "./viruses";
 
 // Every query reads only aggregates from active (not rolled-back) uploads,
@@ -19,7 +20,8 @@ export interface SeriesFilter {
   viruses: VirusKey[];
   region?: string;
   fsa?: string;
-  ageBand?: string;
+  /** Stored age-band labels to include; undefined for all ages. */
+  ageBands?: string[];
   sex?: Sex;
   /** Number of weeks ending at the latest week; null for all available weeks. */
   weeks: number | null;
@@ -73,7 +75,7 @@ export async function getWeeklySeries(
       weekStart: { gte: parseIsoDate(fetchFrom)!, lte: parseIsoDate(range.latest)! },
       ...(filter.region && { region: filter.region }),
       ...(filter.fsa && { fsa: filter.fsa }),
-      ...(filter.ageBand && { ageBand: filter.ageBand }),
+      ...(filter.ageBands && { ageBand: { in: filter.ageBands } }),
       ...(filter.sex && { sex: filter.sex }),
     },
     _sum: { nDetected: true, nNotDetected: true, nIndeterminate: true },
@@ -99,6 +101,23 @@ export async function getWeeklySeries(
   return { weeks, series };
 }
 
+/** Counts per FSA, virus and week (all ages and sexes) from `weeks[0]` to `weeks.at(-1)`. */
+async function getFsaWeekRows(weeks: string[], viruses: VirusKey[]): Promise<ActivityRow[]> {
+  const rows = await db.weeklyAggregate.groupBy({
+    by: ["fsa", "virus", "weekStart"],
+    where: { ...ACTIVE, virus: { in: viruses }, weekStart: { gte: parseIsoDate(weeks[0])!, lte: parseIsoDate(weeks.at(-1)!)! } },
+    _sum: { nDetected: true, nNotDetected: true, nIndeterminate: true },
+  });
+  return rows.map((r) => ({
+    fsa: r.fsa,
+    virus: r.virus,
+    weekStart: toIsoDate(r.weekStart),
+    nDetected: r._sum.nDetected ?? 0,
+    nNotDetected: r._sum.nNotDetected ?? 0,
+    nIndeterminate: r._sum.nIndeterminate ?? 0,
+  }));
+}
+
 /** Public activity for every FSA (and all areas pooled) over the last `shownWeeks` weeks. */
 export async function getFsaActivity(
   range: { first: string; latest: string },
@@ -106,28 +125,28 @@ export async function getFsaActivity(
   shownWeeks = 8,
 ): Promise<ActivitySummary> {
   const weeks = weeksBetween(addWeeks(range.latest, -(shownWeeks + ACTIVITY_WINDOW - 2)), range.latest);
-  const rows = await db.weeklyAggregate.groupBy({
-    by: ["fsa", "virus", "weekStart"],
-    where: { ...ACTIVE, virus: { in: viruses }, weekStart: { gte: parseIsoDate(weeks[0])! } },
-    _sum: { nDetected: true, nNotDetected: true, nIndeterminate: true },
-  });
-  return buildActivity(
-    rows.map((r) => ({
-      fsa: r.fsa,
-      virus: r.virus,
-      weekStart: toIsoDate(r.weekStart),
-      nDetected: r._sum.nDetected ?? 0,
-      nNotDetected: r._sum.nNotDetected ?? 0,
-      nIndeterminate: r._sum.nIndeterminate ?? 0,
-    })),
-    weeks,
-    viruses,
-  );
+  return buildActivity(await getFsaWeekRows(weeks, viruses), weeks, viruses);
+}
+
+/** Weekly test counts for every FSA over the last `shownWeeks` weeks, with public suppression. */
+export async function getFsaWeeklyTests(
+  range: { first: string; latest: string },
+  viruses: VirusKey[],
+  shownWeeks = 4,
+): Promise<FsaTestCounts> {
+  const weeks = weeksBetween(addWeeks(range.latest, -(shownWeeks - 1)), range.latest);
+  return buildFsaTestCounts(await getFsaWeekRows(weeks, viruses), weeks, viruses, "public");
+}
+
+/** Collection date of the newest specimen in any active upload. */
+export async function getLastCollectedDate(): Promise<string | null> {
+  const r = await db.upload.aggregate({ where: { status: "ACTIVE" }, _max: { maxDate: true } });
+  return r._max.maxDate ? toIsoDate(r._max.maxDate) : null;
 }
 
 /** Dashboard map: positivity per FSA for one virus in the latest week (or 3-week window), PH suppression. */
 export async function getFsaPositivity(
-  filter: Pick<SeriesFilter, "ageBand" | "sex" | "rolling">,
+  filter: Pick<SeriesFilter, "ageBands" | "sex" | "rolling">,
   virus: VirusKey,
   range: { first: string; latest: string },
 ): Promise<Record<string, PublishedCell<string>>> {
@@ -138,7 +157,7 @@ export async function getFsaPositivity(
       ...ACTIVE,
       virus,
       weekStart: { gte: parseIsoDate(from)!, lte: parseIsoDate(range.latest)! },
-      ...(filter.ageBand && { ageBand: filter.ageBand }),
+      ...(filter.ageBands && { ageBand: { in: filter.ageBands } }),
       ...(filter.sex && { sex: filter.sex }),
     },
     _sum: { nDetected: true, nNotDetected: true, nIndeterminate: true },

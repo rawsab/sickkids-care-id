@@ -5,12 +5,16 @@ import { setWorkerUrl, type ExpressionSpecification } from "maplibre-gl";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Map, { Layer, NavigationControl, Source, type MapLayerMouseEvent, type MapRef } from "react-map-gl/maplibre";
 import { useI18n } from "@/i18n/client";
+import { SK, tint } from "@/lib/brand";
 import { bboxOf, type FsaCollection } from "@/lib/geo";
 
 const BASEMAP_STYLE =
   process.env.NEXT_PUBLIC_BASEMAP_STYLE ?? "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 const HATCH = "care-id-hatch";
-const NAVY = "#00205b";
+const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+// Same blueberry tints as the `.hatch` CSS swatch.
+const HATCH_LINE = rgb(tint(SK.blueberry, 0.31));
+const HATCH_GROUND = rgb(tint(SK.blueberry, 0.1));
 
 // MapLibre loads its worker from a file beside its own bundle, which the
 // bundler doesn't emit; serve the copy made by `postinstall` instead.
@@ -29,7 +33,7 @@ function hatchImage(size = 8) {
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const onLine = (x + y) % size < 2;
-      const [r, g, b, a] = onLine ? [175, 185, 198, 255] : [230, 234, 240, 200];
+      const [r, g, b, a] = onLine ? [...HATCH_LINE, 255] : [...HATCH_GROUND, 200];
       data.set([r, g, b, a], (y * size + x) * 4);
     }
   }
@@ -202,13 +206,13 @@ export function FsaMap({
               id="fsa-hover"
               type="line"
               filter={["==", ["get", "CFSAUID"], hover?.fsa ?? ""]}
-              paint={{ "line-color": NAVY, "line-width": 1.5, "line-opacity": 0.7 }}
+              paint={{ "line-color": SK.blueberry, "line-width": 1.5, "line-opacity": 0.7 }}
             />
             <Layer
               id="fsa-selected"
               type="line"
               filter={["==", ["get", "CFSAUID"], selected ?? ""]}
-              paint={{ "line-color": NAVY, "line-width": 3 }}
+              paint={{ "line-color": SK.blueberry, "line-width": 3 }}
             />
           </Source>
         )}
