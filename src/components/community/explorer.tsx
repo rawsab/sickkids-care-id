@@ -14,7 +14,7 @@ import { INTL_LOCALE, localePath } from "@/i18n/config";
 import { t } from "@/i18n/format";
 import type { ActivitySummary, AreaActivity } from "@/lib/activity";
 import { ACTIVITY, ACTIVITY_ORDER } from "@/lib/display";
-import { FSA_GEOJSON_URL, fsaAt, type FsaCollection } from "@/lib/geo";
+import { areaForPostalCode, FSA_GEOJSON_URL, fsaAt, type FsaCollection } from "@/lib/geo";
 import type { ActivityLevel, Trend } from "@/lib/metrics";
 import { defaultRegionForFsa, normaliseFsa } from "@/lib/regions";
 import { COMMUNITY_VIRUSES, VIRUS_BY_KEY, type CommunityVirus } from "@/lib/viruses";
@@ -138,11 +138,10 @@ export function CommunityExplorer({
 
   const search = (e: React.FormEvent) => {
     e.preventDefault();
-    const fsa = normaliseFsa(query);
     if (!query.trim()) return select(null);
-    if (!fsa) return setMessage(h.errors.notPostal);
-    if (geojson && !mapFsas.has(fsa)) return setMessage(t(h.errors.outsideGta, { fsa }));
-    select(fsa);
+    const area = areaForPostalCode(query, geojson ? mapFsas : null);
+    if ("error" in area) return setMessage(area.error === "notPostal" ? h.errors.notPostal : t(h.errors.outsideGta, { fsa: area.fsa! }));
+    select(area.fsa);
     setView("map");
   };
 
@@ -184,7 +183,7 @@ export function CommunityExplorer({
   const virusSegments = COMMUNITY_VIRUSES.map((v) => ({ value: v, label: dict.common.viruses[v].short, color: VIRUS_BY_KEY[v].color }));
 
   return (
-    <section aria-label={h.sectionLabel} className="relative h-[calc(100dvh-4rem-2px)] min-h-[560px] overflow-hidden bg-map-canvas">
+    <section aria-label={h.sectionLabel} className="relative h-[calc(100dvh-4.5rem)] min-h-[560px] overflow-hidden bg-map-canvas">
       {/* Map or list fills the section; the panel floats over it. */}
       <div className="absolute inset-0">
         {view === "map" ? (
@@ -229,7 +228,7 @@ export function CommunityExplorer({
       {view === "map" && (
         <a
           href="#how-heading"
-          className="absolute bottom-4 left-1/2 z-10 hidden -translate-x-1/2 items-center gap-1.5 rounded-full bg-surface/95 px-4 py-2 text-sm font-semibold text-brand-navy shadow-raised ring-1 ring-border hover:bg-surface xl:flex"
+          className="absolute bottom-4 left-1/2 z-10 hidden -translate-x-1/2 items-center gap-1.5 rounded-full bg-surface/95 px-4 py-2 text-sm font-semibold text-brand-blueberry shadow-raised ring-1 ring-border hover:bg-surface xl:flex"
         >
           {h.howItWorksLink} <Icon name="arrowDown" className="size-4" />
         </a>
@@ -252,7 +251,7 @@ export function CommunityExplorer({
           <span aria-hidden className="h-1.5 w-10 rounded-full bg-border-strong" />
         </button>
         <div className="overflow-y-auto overscroll-contain px-4 pb-4 sm:px-5 sm:pb-5 lg:pt-5">
-          <h1 className="text-xl font-bold tracking-tight text-text">{h.title}</h1>
+          <h1 className="text-xl font-black tracking-tight text-text">{h.title}</h1>
           <p className="mt-1 hidden text-sm text-text-muted sm:block lg:block">
             {h.lead}
           </p>
@@ -272,13 +271,13 @@ export function CommunityExplorer({
             <Button type="submit">{h.search}</Button>
           </form>
           <div className="mt-2 flex items-center justify-between gap-2 text-sm">
-            <button type="button" onClick={locate} disabled={locating || !geojson} className="shrink-0 whitespace-nowrap font-medium text-brand-blue hover:underline disabled:opacity-50">
+            <button type="button" onClick={locate} disabled={locating || !geojson} className="shrink-0 whitespace-nowrap font-medium text-brand-royal hover:underline disabled:opacity-50">
               {locating ? h.locating : h.useLocation}
             </button>
             <span className="text-right text-xs text-text-subtle">{h.postalHint}</span>
           </div>
           {message && (
-            <p role="alert" className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900 ring-1 ring-amber-200">
+            <p role="alert" className="mt-3 rounded-lg bg-warning-surface px-3 py-2 text-sm ring-1 ring-warning-border">
               {message}
             </p>
           )}
@@ -318,7 +317,7 @@ export function CommunityExplorer({
               <button
                 type="button"
                 onClick={() => setView((v) => (v === "map" ? "list" : "map"))}
-                className="rounded-md px-2 py-1 font-semibold text-brand-blue hover:bg-brand-sky"
+                className="rounded-md px-2 py-1 font-semibold text-brand-royal hover:bg-brand-sky"
               >
                 {view === "map" ? h.viewList : h.viewMap}
               </button>
@@ -393,7 +392,7 @@ function AreaSummary({
       )}
       <p className="mt-3 text-xs text-text-subtle">
         {h.levelsNote}{" "}
-        <Link href={localePath(locale, "/notes#activity")} className="underline underline-offset-2 hover:text-text">
+        <Link href={localePath(locale, "/about#activity")} className="underline underline-offset-2 hover:text-text">
           {h.levelsLink}
         </Link>
       </p>
@@ -473,7 +472,7 @@ function AreaList({
             {rows.map((r) => (
               <tr key={r.fsa} className="hover:bg-surface-muted">
                 <th scope="row" className="px-4 py-2.5">
-                  <button type="button" onClick={() => onSelect(r.fsa)} className="font-semibold text-brand-blue hover:underline">
+                  <button type="button" onClick={() => onSelect(r.fsa)} className="font-semibold text-brand-royal hover:underline">
                     {r.fsa}
                   </button>
                 </th>

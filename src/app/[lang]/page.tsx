@@ -54,14 +54,14 @@ function InfoSections({ locale, dict }: { locale: Locale; dict: Dictionary }) {
     <div className="bg-canvas">
       <div className="mx-auto max-w-[90rem] space-y-14 px-4 py-14 sm:px-6">
         <section aria-labelledby="how-heading">
-          <p className="text-xs font-semibold uppercase tracking-wider text-brand-blue">{how.eyebrow}</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-brand-royal">{how.eyebrow}</p>
           <h2 id="how-heading" className="scroll-mt-24 mt-1 text-2xl font-bold tracking-tight">
             {how.title}
           </h2>
           <ol className="mt-6 grid gap-4 md:grid-cols-3">
             {how.steps.map((s, i) => (
               <li key={s.title} className="rounded-[var(--radius-card)] bg-surface p-6 shadow-card ring-1 ring-border/70">
-                <span className="grid size-8 place-items-center rounded-full bg-brand-sky text-sm font-bold text-brand-navy">
+                <span className="grid size-8 place-items-center rounded-full bg-brand-sky text-sm font-bold text-brand-blueberry">
                   {i + 1}
                 </span>
                 <h3 className="mt-4 font-semibold">{s.title}</h3>
@@ -72,7 +72,7 @@ function InfoSections({ locale, dict }: { locale: Locale; dict: Dictionary }) {
         </section>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <section aria-labelledby="privacy-heading" className="rounded-[var(--radius-card)] bg-brand-navy p-8 text-white">
+          <section aria-labelledby="privacy-heading" className="rounded-[var(--radius-card)] bg-brand-blueberry p-8 text-white">
             <h2 id="privacy-heading" className="text-xl font-bold">
               {privacy.title}
             </h2>
@@ -81,7 +81,7 @@ function InfoSections({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                 <li key={item}>{t(item, { minTests: PRIVACY_RULES.public.minTests })}</li>
               ))}
             </ul>
-            <a href={localePath(locale, "/notes#privacy")} className="mt-5 inline-block font-semibold text-white underline underline-offset-4">
+            <a href={localePath(locale, "/about#privacy")} className="mt-5 inline-block font-semibold text-white underline underline-offset-4">
               {privacy.link}
             </a>
           </section>

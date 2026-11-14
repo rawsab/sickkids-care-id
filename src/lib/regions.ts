@@ -18,6 +18,12 @@ export function normaliseFsa(value: string): string | null {
   return FSA_PATTERN.test(fsa) ? fsa : null;
 }
 
+/** A full Canadian postal code without spaces ("m6h 1a1" → "M6H1A1"), or null. */
+export function normalisePostalCode(value: string): string | null {
+  const code = value.replace(/\s+/g, "").toUpperCase();
+  return /^[A-Z]\d[A-Z]\d[A-Z]\d$/.test(code) ? code : null;
+}
+
 // GTA regional municipalities, by FSA prefix. Approximate: a few FSAs straddle
 // boundaries, so admins should review assignments in the FSA lookup.
 const GTA_REGIONS: [RegExp, string][] = [

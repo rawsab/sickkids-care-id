@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE, LOCALES, type Locale } from "@/i18n/config";
+import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE, type Locale } from "@/i18n/config";
 
 /** Best supported language from Accept-Language, e.g. "fr-CA,fr;q=0.9,en;q=0.8" → "fr". */
 function negotiate(header: string | null): Locale {
@@ -14,10 +14,6 @@ function negotiate(header: string | null): Locale {
   return (ranked.find((r) => isLocale(r.lang))?.lang as Locale | undefined) ?? DEFAULT_LOCALE;
 }
 
-// Until authentication is in place, the admin and public health areas are
-// only reachable in local development. Replace with a session/role check.
-const GATED = new RegExp(`^/(${LOCALES.join("|")})/(admin|dashboard)(/|$)`);
-
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const first = pathname.split("/")[1];
@@ -29,10 +25,6 @@ export function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
     return NextResponse.redirect(url);
-  }
-
-  if (process.env.NODE_ENV === "production" && GATED.test(pathname)) {
-    return new NextResponse("Not found", { status: 404 });
   }
 
   const response = NextResponse.next();

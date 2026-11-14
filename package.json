@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "start:local": "docker compose up -d --wait db && prisma migrate deploy && npm run db:seed && next dev",
+    "stop:local": "pkill -f \"$PWD/node_modules/.bin/next dev\"; docker compose stop db",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -15,8 +17,10 @@
     "db:migrate:dev": "prisma migrate dev",
     "db:seed": "node --env-file=.env --conditions=react-server --import tsx scripts/seed.ts",
     "db:reset": "prisma migrate reset --force && npm run db:seed",
+    "user:add": "node --env-file=.env --conditions=react-server --import tsx scripts/add-user.ts",
     "data:synthetic": "tsx scripts/gen-synthetic.ts",
-    "geo:build": "tsx scripts/build-fsa-geo.ts"
+    "geo:build": "tsx scripts/build-fsa-geo.ts",
+    "schools:import": "tsx scripts/import-schools.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",

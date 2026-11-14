@@ -3,11 +3,13 @@ import { PageHeader } from "@/components/page-header";
 import { ActivityBadge } from "@/components/ui/activity-badge";
 import { rich, t } from "@/i18n/format";
 import { getI18n } from "@/i18n/server";
+import { getCurrentUser } from "@/lib/auth/session";
 import { DEFAULT_AGE_BANDS } from "@/lib/ingest/deidentify";
 import { COLUMNS } from "@/lib/ingest/validate";
 import { DEFAULT_ACTIVITY_THRESHOLDS } from "@/lib/metrics";
 import { PRIVACY_RULES } from "@/lib/privacy";
 import { ONTARIO_REGIONS } from "@/lib/regions";
+import { SCHOOL_SOURCE } from "@/lib/schools";
 import { VIRUSES } from "@/lib/viruses";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -30,11 +32,13 @@ function Section({ id, title, children }: { id: SectionId; title: string; childr
 }
 
 function Callout({ children }: { children: React.ReactNode }) {
-  return <div className="max-w-[34rem] rounded-xl bg-brand-sky px-4 py-3 text-sm leading-6 text-brand-navy ring-1 ring-brand-blue/15">{children}</div>;
+  return <div className="max-w-[34rem] rounded-xl bg-brand-sky px-4 py-3 text-sm leading-6 text-brand-blueberry ring-1 ring-brand-royal/15">{children}</div>;
 }
 
-export default async function TechnicalNotes() {
-  const { dict } = await getI18n();
+export default async function About() {
+  const [{ dict }, user] = await Promise.all([getI18n(), getCurrentUser()]);
+  // The upload file format is only for signed-in uploaders.
+  const sections = SECTION_IDS.filter((id) => id !== "format" || user);
   const n = dict.notes;
   const th = DEFAULT_ACTIVITY_THRESHOLDS;
   const strong = { b: (chunk: React.ReactNode) => <strong className="text-text">{chunk}</strong> };
@@ -55,9 +59,9 @@ export default async function TechnicalNotes() {
       <div className="mx-auto grid max-w-[90rem] gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[14rem_minmax(0,44rem)]">
         <nav aria-label={n.tocLabel} className="hidden lg:block">
           <ul className="sticky top-24 space-y-1 border-l border-border text-sm">
-            {SECTION_IDS.map((id) => (
+            {sections.map((id) => (
               <li key={id}>
-                <a href={`#${id}`} className="-ml-px block border-l-2 border-transparent py-1 pl-4 text-text-muted hover:border-brand-blue hover:text-text">
+                <a href={`#${id}`} className="-ml-px block border-l-2 border-transparent py-1 pl-4 text-text-muted hover:border-brand-royal hover:text-text">
                   {n.sections[id]}
                 </a>
               </li>
@@ -68,6 +72,19 @@ export default async function TechnicalNotes() {
         <div className="space-y-12">
           <Section id="source" title={n.sections.source}>
             <p>{n.source}</p>
+            <p>{n.schools}</p>
+            <p>
+              {rich(n.schoolsLicence, {
+                link: (chunk) => (
+                  <a href={SCHOOL_SOURCE.licenceUrl} className="font-medium text-brand-royal underline underline-offset-2">
+                    {chunk}
+                  </a>
+                ),
+              })}{" "}
+              <a href={SCHOOL_SOURCE.datasetUrl} className="font-medium text-brand-royal underline underline-offset-2">
+                {n.schoolsDataset}
+              </a>
+            </p>
           </Section>
 
           <Section id="deidentification" title={n.sections.deidentification}>
@@ -86,7 +103,7 @@ export default async function TechnicalNotes() {
 
           <Section id="privacy" title={n.sections.privacy}>
             <p>{rich(n.privacy, strong, { publicMin: PRIVACY_RULES.public.minTests, phMin: PRIVACY_RULES.ph.minTests })}</p>
-            <Callout>{n.privacyCallout}</Callout>
+            <Callout>{t(n.privacyCallout, { publicMin: PRIVACY_RULES.public.minTests })}</Callout>
           </Section>
 
           <Section id="activity" title={n.sections.activity}>
@@ -111,6 +128,7 @@ export default async function TechnicalNotes() {
             </ul>
           </Section>
 
+          {user && (
           <Section id="format" title={n.sections.format}>
             <div className="overflow-x-auto rounded-xl ring-1 ring-border">
               <table className="w-full text-left text-sm">
@@ -131,6 +149,7 @@ export default async function TechnicalNotes() {
               </table>
             </div>
           </Section>
+          )}
         </div>
       </div>
     </>

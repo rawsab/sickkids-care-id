@@ -1,48 +1,71 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Brand values are PLACEHOLDERS in the SickKids style — confirm
- * exact colours, typeface and logo usage with SickKids Communications and
- * update them here only. Virus data colours live in src/lib/viruses.ts.
+ * Design tokens. Colours come only from the SickKids corporate palette
+ * (Brand Tipsheet 08.22), tints of those colours (color-mix with white, i.e.
+ * the colour at partial opacity) and white. src/lib/brand.ts holds the same
+ * palette for code that needs literals; data colours live in src/lib/display.ts
+ * and src/lib/viruses.ts.
  */
 :root {
   color-scheme: light;
 
-  --brand-navy: #00205b;
-  --brand-blue: #0067b1;
-  --brand-blue-dark: #004f88;
-  --brand-sky: #e8f2fb;
-  --brand-accent: #f2a900;
+  /* SickKids palette. Royal and ocean are the corporate colours. */
+  --sk-royal: #0066ad;
+  --sk-ocean: #01b3d9;
+  --sk-apple: #8ad260;
+  --sk-pineapple: #f1e94d;
+  --sk-pine: #1f574e;
+  --sk-tangerine: #e6863e;
+  --sk-charcoal: #54575a;
+  --sk-bubblegum: #d95296;
+  --sk-cherry: #bf4140;
+  --sk-blueberry: #002058;
+  --sk-eggplant: #514684;
+  --sk-licorice: #000000;
 
-  /* Surfaces, from the page plane up to floating overlays. */
-  --canvas: #f5f7fa;
+  --brand-royal: var(--sk-royal);
+  /* Hover/pressed royal: royal at 70% over blueberry. */
+  --brand-royal-dark: color-mix(in srgb, var(--sk-royal) 70%, var(--sk-blueberry));
+  --brand-ocean: var(--sk-ocean);
+  --brand-blueberry: var(--sk-blueberry);
+  --brand-sky: color-mix(in srgb, var(--sk-ocean) 12%, white);
+  --brand-pineapple: var(--sk-pineapple);
+
+  /* Surfaces, from the page plane up to floating overlays (blueberry tints). */
+  --canvas: color-mix(in srgb, var(--sk-blueberry) 4%, white);
   --surface: #ffffff;
-  --surface-muted: #f0f3f7;
-  --border: #e2e7ee;
-  --border-strong: #c9d1dc;
-  /* Outline of text inputs and selects; ≥3:1 against white (WCAG 1.4.11). */
-  --border-control: #848f9f;
-  /* Behind the map while tiles load; matches the basemap's land colour. */
-  --map-canvas: #eef1f4;
+  --surface-muted: color-mix(in srgb, var(--sk-blueberry) 6%, white);
+  --border: color-mix(in srgb, var(--sk-blueberry) 12%, white);
+  --border-strong: color-mix(in srgb, var(--sk-blueberry) 22%, white);
+  /* Outline of text inputs and selects; 3.3:1 against white (WCAG 1.4.11). */
+  --border-control: color-mix(in srgb, var(--sk-blueberry) 50%, white);
+  /* Behind the map while tiles load; close to the basemap's land colour. */
+  --map-canvas: color-mix(in srgb, var(--sk-blueberry) 7%, white);
 
-  --text: #0f1b2d;
-  --text-muted: #556274;
+  --text: var(--sk-blueberry);
+  --text-muted: var(--sk-charcoal);
   /* ≥4.5:1 on canvas, surface-muted and brand-sky, so it's safe for small text. */
-  --text-subtle: #626e7c;
+  --text-subtle: color-mix(in srgb, var(--sk-charcoal) 90%, white);
 
-  /* Activity level and virus colours live in src/lib/display.ts and
-     src/lib/viruses.ts (the map and charts need literal values). */
-
-  --danger: #b3261e;
-  --success: #1f7a3a;
+  --danger: var(--sk-cherry);
+  --danger-surface: color-mix(in srgb, var(--sk-cherry) 8%, white);
+  --danger-border: color-mix(in srgb, var(--sk-cherry) 30%, white);
+  --success: var(--sk-pine);
+  --success-surface: color-mix(in srgb, var(--sk-apple) 18%, white);
+  --success-border: color-mix(in srgb, var(--sk-apple) 55%, white);
+  /* Warnings keep body-colour text: tangerine and pineapple are too light for it. */
+  --warning-surface: color-mix(in srgb, var(--sk-pineapple) 30%, white);
+  --warning-border: color-mix(in srgb, var(--sk-tangerine) 55%, white);
 }
 
 @theme inline {
-  --color-brand-navy: var(--brand-navy);
-  --color-brand-blue: var(--brand-blue);
-  --color-brand-blue-dark: var(--brand-blue-dark);
+  --color-brand-royal: var(--brand-royal);
+  --color-brand-royal-dark: var(--brand-royal-dark);
+  --color-brand-ocean: var(--brand-ocean);
+  --color-brand-blueberry: var(--brand-blueberry);
   --color-brand-sky: var(--brand-sky);
-  --color-brand-accent: var(--brand-accent);
+  --color-brand-pineapple: var(--brand-pineapple);
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
@@ -54,13 +77,22 @@
   --color-text-muted: var(--text-muted);
   --color-text-subtle: var(--text-subtle);
   --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+  --color-danger-border: var(--danger-border);
   --color-success: var(--success);
+  --color-success-surface: var(--success-surface);
+  --color-success-border: var(--success-border);
+  --color-warning-surface: var(--warning-surface);
+  --color-warning-border: var(--warning-border);
 
-  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Libre Franklin stands in for Franklin Gothic; Arial is the tip sheet's PC fallback. */
+  --font-sans: var(--font-franklin), "Franklin Gothic", Arial, sans-serif;
 
-  --shadow-card: 0 1px 2px rgb(15 27 45 / 0.05), 0 1px 3px rgb(15 27 45 / 0.04);
-  --shadow-raised: 0 4px 12px -2px rgb(15 27 45 / 0.08), 0 2px 4px -2px rgb(15 27 45 / 0.05);
-  --shadow-overlay: 0 18px 40px -12px rgb(15 27 45 / 0.25), 0 4px 10px -4px rgb(15 27 45 / 0.08);
+  --shadow-card: 0 1px 2px rgb(0 32 88 / 0.05), 0 1px 3px rgb(0 32 88 / 0.04);
+  --shadow-raised: 0 4px 12px -2px rgb(0 32 88 / 0.08), 0 2px 4px -2px rgb(0 32 88 / 0.05);
+  --shadow-overlay: 0 18px 40px -12px rgb(0 32 88 / 0.25), 0 4px 10px -4px rgb(0 32 88 / 0.08);
+  /* Under the sticky royal header, so content reads as scrolling beneath it. */
+  --shadow-header: 0 2px 6px rgb(0 32 88 / 0.2), 0 1px 2px rgb(0 32 88 / 0.12);
 
   --radius-card: 1rem;
   --radius-control: 0.625rem;
@@ -70,17 +102,17 @@ body {
   background: var(--canvas);
   color: var(--text);
   font-family: var(--font-sans);
-  font-feature-settings: "cv11", "ss01";
 }
 
-/* Amber ring edged in navy: amber alone is only 2:1 on white, the navy edge
-   carries contrast on light surfaces and the amber on the navy header.
+/* Pineapple ring edged in blueberry: pineapple alone is barely visible on white,
+   the blueberry edge carries contrast on light surfaces and the pineapple on the
+   royal header.
    `.focus-proxy` shows the ring on a wrapper whose control is visually hidden. */
 :focus-visible,
 .focus-proxy:has(:focus-visible) {
-  outline: 3px solid var(--brand-accent);
+  outline: 3px solid var(--brand-pineapple);
   outline-offset: 0;
-  box-shadow: 0 0 0 5px var(--brand-navy);
+  box-shadow: 0 0 0 5px var(--brand-blueberry);
 }
 
 /* Fewer one-word last lines in copy; balanced multi-line headings. */
@@ -100,9 +132,72 @@ h3 {
   font-variant-numeric: tabular-nums;
 }
 
+/* Selects draw their own chevron (charcoal) so it sits a set distance from the
+   right edge; the native one hugs the border and can't be moved. */
+.select-chevron {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2354575a' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1rem;
+}
+
+/* Two stacked range inputs make one two-thumb slider: the inputs ignore the
+   pointer so only their thumbs catch it. The focus ring moves to the thumb. */
+.range-dual {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+.range-dual:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.range-dual::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.range-dual::-moz-range-track {
+  background: transparent;
+}
+.range-dual::-webkit-slider-thumb {
+  appearance: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 9999px;
+  border: 2px solid var(--brand-royal);
+  background: var(--surface);
+  box-shadow: var(--shadow-raised);
+  cursor: grab;
+  pointer-events: auto;
+}
+.range-dual::-moz-range-thumb {
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 9999px;
+  border: 2px solid var(--brand-royal);
+  background: var(--surface);
+  box-shadow: var(--shadow-raised);
+  cursor: grab;
+  pointer-events: auto;
+}
+.range-dual:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--brand-pineapple), 0 0 0 5px var(--brand-blueberry);
+}
+.range-dual:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px var(--brand-pineapple), 0 0 0 5px var(--brand-blueberry);
+}
+
 /* Diagonal hatch for "not enough data" swatches (matches the map pattern). */
 .hatch {
-  background: repeating-linear-gradient(135deg, #e6eaf0 0 3px, #c3cbd6 3px 4.5px);
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--sk-blueberry) 10%, white) 0 3px,
+    color-mix(in srgb, var(--sk-blueberry) 31%, white) 3px 4.5px
+  );
 }
 
 /* Keep MapLibre's bottom controls (zoom, attribution) clear of panels floating over the map. */

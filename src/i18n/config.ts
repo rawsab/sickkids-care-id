@@ -12,7 +12,7 @@ export const isLocale = (value: string | undefined): value is Locale => LOCALES.
 /** BCP 47 tag for Intl formatting: Canadian conventions in both languages. */
 export const INTL_LOCALE: Record<Locale, string> = { en: "en-CA", fr: "fr-CA" };
 
-/** Prefixes an app path (e.g. "/notes#privacy") with the language segment. */
+/** Prefixes an app path (e.g. "/about#privacy") with the language segment. */
 export const localePath = (locale: Locale, path: string) => `/${locale}${path === "/" ? "" : path}`;
 
 /** The same page in another language: swaps the leading language segment. */

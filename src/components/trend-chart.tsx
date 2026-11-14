@@ -4,6 +4,7 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { useI18n } from "@/i18n/client";
 import { INTL_LOCALE, type Locale } from "@/i18n/config";
 import { formatPct, t } from "@/i18n/format";
+import { INK } from "@/lib/brand";
 
 export interface TrendLine {
   key: string;
@@ -16,8 +17,6 @@ export interface TrendLine {
 const shortDate = (iso: string, locale: Locale) =>
   new Date(`${iso}T00:00:00Z`).toLocaleDateString(INTL_LOCALE[locale], { month: "short", day: "numeric", timeZone: "UTC" });
 
-const INK_MUTED = "#626e7c"; // --text-subtle; Recharts needs a literal
-const GRID = "#e9edf2";
 const MARGIN = { top: 12, right: 96, bottom: 4, left: 0 };
 const X_AXIS_HEIGHT = 30;
 const LABEL_GAP = 15;
@@ -65,19 +64,19 @@ export function TrendChart({ weeks, lines, height = 340 }: { weeks: string[]; li
       )}
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={MARGIN}>
-          <CartesianGrid stroke={GRID} vertical={false} />
+          <CartesianGrid stroke={INK.grid} vertical={false} />
           <XAxis
             dataKey="week"
             height={X_AXIS_HEIGHT}
             tickFormatter={(w: string) => shortDate(w, locale)}
-            tick={{ fontSize: 12, fill: INK_MUTED }}
+            tick={{ fontSize: 12, fill: INK.subtle }}
             tickLine={false}
-            axisLine={{ stroke: "#c9d1dc" }}
+            axisLine={{ stroke: INK.borderStrong }}
             minTickGap={28}
           />
           <YAxis
             tickFormatter={(v: number) => formatPct(locale, v).replace(/[.,]0(?=\s?%)/, "")}
-            tick={{ fontSize: 12, fill: INK_MUTED }}
+            tick={{ fontSize: 12, fill: INK.subtle }}
             tickLine={false}
             axisLine={false}
             width={48}
@@ -85,10 +84,10 @@ export function TrendChart({ weeks, lines, height = 340 }: { weeks: string[]; li
             ticks={ticks}
           />
           <Tooltip
-            cursor={{ stroke: "#c9d1dc", strokeWidth: 1 }}
-            contentStyle={{ borderRadius: 12, border: "1px solid #e2e7ee", boxShadow: "0 8px 24px -8px rgb(15 27 45 / 0.2)", fontSize: 13 }}
-            labelStyle={{ fontWeight: 600, color: "#0f1b2d", marginBottom: 4 }}
-            itemStyle={{ color: "#0f1b2d", padding: 0 }}
+            cursor={{ stroke: INK.borderStrong, strokeWidth: 1 }}
+            contentStyle={{ borderRadius: 12, border: `1px solid ${INK.border}`, boxShadow: "0 8px 24px -8px rgb(0 32 88 / 0.2)", fontSize: 13 }}
+            labelStyle={{ fontWeight: 600, color: INK.text, marginBottom: 4 }}
+            itemStyle={{ color: INK.text, padding: 0 }}
             labelFormatter={(w) => t(dict.dashboard.chart.weekOf, { date: shortDate(String(w), locale) })}
             formatter={(v) => (typeof v === "number" ? formatPct(locale, v) : dict.common.tooFewTests)}
           />
@@ -107,7 +106,7 @@ export function TrendChart({ weeks, lines, height = 340 }: { weeks: string[]; li
                 isAnimationActive={false}
                 label={({ x, y, index }: { x?: number | string; y?: number | string; index?: number }) =>
                   index === last ? (
-                    <text key={`${l.key}-label`} x={Number(x) + 8} y={Number(y) + (labelOffsets[l.key] ?? 0)} dy={4} fontSize={12} fontWeight={600} fill="#0f1b2d">
+                    <text key={`${l.key}-label`} x={Number(x) + 8} y={Number(y) + (labelOffsets[l.key] ?? 0)} dy={4} fontSize={12} fontWeight={600} fill={INK.text}>
                       {l.label.split(" (")[0]}
                     </text>
                   ) : (

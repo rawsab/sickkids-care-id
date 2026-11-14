@@ -1,3 +1,5 @@
+import { SK } from "./brand";
+
 export type VirusKey = "INF_A" | "INF_B" | "INF_ANY" | "COVID19" | "RSV";
 
 export type TestResult = "detected" | "not_detected" | "indeterminate";
@@ -11,12 +13,13 @@ export interface VirusDef {
 }
 
 export const VIRUSES: readonly VirusDef[] = [
-  // Names live in the dictionaries (common.viruses).
-  { key: "COVID19", sourceColumn: "CORO19", color: "#2a78d6" },
-  { key: "INF_ANY", sourceColumn: null, color: "#eb6834" },
-  { key: "INF_A", sourceColumn: "INF_A", color: "#6250d6" },
-  { key: "INF_B", sourceColumn: "INF_B", color: "#eda100" },
-  { key: "RSV", sourceColumn: "RSV_PCR", color: "#1baf7a" },
+  // Names live in the dictionaries (common.viruses). The most colour-blind-safe
+  // five of the SickKids palette.
+  { key: "COVID19", sourceColumn: "CORO19", color: SK.royal },
+  { key: "INF_ANY", sourceColumn: null, color: SK.tangerine },
+  { key: "INF_A", sourceColumn: "INF_A", color: SK.blueberry },
+  { key: "INF_B", sourceColumn: "INF_B", color: SK.cherry },
+  { key: "RSV", sourceColumn: "RSV_PCR", color: SK.ocean },
 ];
 
 export const VIRUS_BY_KEY = Object.fromEntries(VIRUSES.map((v) => [v.key, v])) as Record<VirusKey, VirusDef>;
@@ -28,6 +31,9 @@ export function combineInfluenza(a: TestResult, b: TestResult): TestResult {
   return "indeterminate";
 }
 
-/** Viruses shown to school communities (influenza types are combined). */
-export const COMMUNITY_VIRUSES = ["COVID19", "INF_ANY", "RSV"] as const satisfies readonly VirusKey[];
+/** Viruses on the public health dashboard: influenza A and B are reported separately. */
+export const DASHBOARD_VIRUSES = ["COVID19", "INF_A", "INF_B", "RSV"] as const satisfies readonly VirusKey[];
+
+/** Viruses shown to school communities on the map. */
+export const COMMUNITY_VIRUSES = ["COVID19", "INF_A", "INF_B", "RSV"] as const satisfies readonly VirusKey[];
 export type CommunityVirus = (typeof COMMUNITY_VIRUSES)[number];

@@ -52,7 +52,7 @@ export function UploadForm() {
           <li key={label} className="flex items-center gap-3" aria-current={i === step ? "step" : undefined}>
             <span
               className={`grid size-7 place-items-center rounded-full text-xs font-bold ${
-                i < step ? "bg-success text-white" : i === step ? "bg-brand-blue text-white" : "bg-surface-muted text-text-subtle"
+                i < step ? "bg-success text-white" : i === step ? "bg-brand-royal text-white" : "bg-surface-muted text-text-subtle"
               }`}
             >
               {i < step ? <Icon name="check" className="size-4" /> : i + 1}
@@ -75,11 +75,11 @@ export function UploadForm() {
           choose(e.dataTransfer.files[0]);
         }}
         className={`focus-proxy flex cursor-pointer flex-col items-center justify-center rounded-[var(--radius-card)] border-2 border-dashed px-6 py-10 text-center transition-colors ${
-          dragging ? "border-brand-blue bg-brand-sky" : "border-border-strong bg-surface hover:border-brand-blue/60"
+          dragging ? "border-brand-royal bg-brand-sky" : "border-border-strong bg-surface hover:border-brand-royal/60"
         }`}
       >
         <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => choose(e.target.files?.[0])} />
-        <span className="mb-3 grid size-11 place-items-center rounded-full bg-brand-sky text-brand-blue">
+        <span className="mb-3 grid size-11 place-items-center rounded-full bg-brand-sky text-brand-royal">
           <Icon name="arrowUp" className="size-5" />
         </span>
         {file ? (
@@ -99,12 +99,12 @@ export function UploadForm() {
 
       <div aria-live="polite" className="space-y-6">
         {state.status === "error" && (
-          <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-danger ring-1 ring-red-200">
+          <p role="alert" className="rounded-xl bg-danger-surface px-4 py-3 text-danger ring-1 ring-danger-border">
             {u.errors[state.code]}
           </p>
         )}
         {state.status === "saved" && (
-          <p className="rounded-xl bg-green-50 px-4 py-3 text-success ring-1 ring-green-200">
+          <p className="rounded-xl bg-success-surface px-4 py-3 text-success ring-1 ring-success-border">
             {plural(locale, state.summary.acceptedCount, u.saved)}
           </p>
         )}
@@ -129,7 +129,7 @@ function Summary({ summary: s, locale, dict }: { summary: UploadSummary; locale:
   const n = (v: number) => formatNumber(locale, v);
   if (s.missingHeaders.length > 0) {
     return (
-      <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-danger ring-1 ring-red-200">
+      <p role="alert" className="rounded-xl bg-danger-surface px-4 py-3 text-danger ring-1 ring-danger-border">
         {t(u.missingColumns, { columns: s.missingHeaders.join(", ") })}
       </p>
     );
@@ -137,9 +137,9 @@ function Summary({ summary: s, locale, dict }: { summary: UploadSummary; locale:
   const rejected = s.rowCount - s.acceptedCount;
   return (
     <div className="space-y-6">
-      {s.warning && <p className="rounded-xl bg-amber-50 px-4 py-3 text-amber-900 ring-1 ring-amber-200">{u.errors[s.warning]}</p>}
+      {s.warning && <p className="rounded-xl bg-warning-surface px-4 py-3 ring-1 ring-warning-border">{u.errors[s.warning]}</p>}
       {s.duplicateOf && (
-        <p className="rounded-xl bg-amber-50 px-4 py-3 text-amber-900 ring-1 ring-amber-200">
+        <p className="rounded-xl bg-warning-surface px-4 py-3 ring-1 ring-warning-border">
           {t(u.duplicate, { date: new Date(s.duplicateOf).toLocaleString(INTL_LOCALE[locale], { dateStyle: "medium", timeStyle: "short" }) })}
         </p>
       )}
